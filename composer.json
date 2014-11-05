@@ -1,0 +1,41 @@
+{
+    "name": "ongr/repository-crawler-bundle",
+    "description": "Repository crawler bundle for ONGR platform",
+    "type": "symfony-bundle",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "ONGR",
+            "homepage": "http://www.ongr.io"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "http://packagist.fox.nfq.lt"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "symfony/symfony": "~2.3",
+        "doctrine/orm": "~2.4",
+        "doctrine/doctrine-bundle": "~1.2",
+        "symfony/monolog-bundle": "~2.0",
+        "nfq-extremes/fox-utils": "~1.0",
+        "ongr/elasticsearch-bundle": "dev-master",
+        "ongr/connections-bundle": "dev-master"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.2",
+        "squizlabs/php_codesniffer": "~1.5"
+    },
+    "suggest": {
+        "ongr/oxid-bundle": "Allows to transfer shop data from OXID to FOXX"
+    },
+    "autoload": {
+        "psr-0": {
+            "ONGR\\RepositoryCrawlerBundle": ""
+        }
+    },
+    "target-dir": "ONGR/RepositoryCrawlerBundle"
+}

@@ -1,0 +1,2 @@
+service:
+  ongr.repository_crawler: ONGR\RepositoryCrawlerBundle\Crawler
