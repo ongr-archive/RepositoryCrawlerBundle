@@ -17,7 +17,6 @@ namespace ONGR\RepositoryCrawlerBundle;
 
 use ONGR\ElasticsearchBundle\Document\DocumentInterface;
 
-
 /**
  * Abstract crawler context with basic processing logic implementation
  */

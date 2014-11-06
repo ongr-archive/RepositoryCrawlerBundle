@@ -2,6 +2,7 @@
 
 namespace ONGR\RepositoryCrawlerBundle\Command;
 
+use ONGR\RepositoryCrawlerBundle;
 use ONGR\RepositoryCrawlerBundle\Crawler;
 use ONGR\ElasticsearchBundle\Command\AbstractElasticsearchCommand;
 use Symfony\Component\Console\Input\InputArgument;

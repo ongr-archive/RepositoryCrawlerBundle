@@ -1,2 +1,9 @@
+parameters:
+  ongr.repository_crawler.class: ONGR\RepositoryCrawlerBundle\Crawler
+
 service:
-  ongr.repository_crawler: ONGR\RepositoryCrawlerBundle\Crawler
+
+  ongr.repository_crawler:
+      class: %ongr.repository_crawler.class%
+      calls:
+          - [setDispatcher, [@event_dispatcher]]

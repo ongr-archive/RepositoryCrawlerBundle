@@ -17,7 +17,7 @@ namespace ONGR\RepositoryCrawlerBundle;
 
 use ONGR\ElasticsearchBundle\DSL\Search;
 use ONGR\ElasticsearchBundle\ORM\Repository;
-use ONGR\RepositoryCrawlerBundle\Event;
+use ONGR\RepositoryCrawlerBundle\Event\CrawlerChunkEvent;
 use ONGR\ElasticsearchBundle\Result\AbstractResultsIterator;
 use Symfony\Component\Console\Helper\ProgressHelper;
 use Symfony\Component\Console\Helper\ProgressBar;

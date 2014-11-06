@@ -13,13 +13,15 @@
         {
             "type": "composer",
             "url": "http://packagist.fox.nfq.lt"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:ongr-io/ConnectionsBundle.git"
         }
     ],
     "require": {
         "php": ">=5.4",
         "symfony/symfony": "~2.3",
-        "doctrine/orm": "~2.4",
-        "doctrine/doctrine-bundle": "~1.2",
         "symfony/monolog-bundle": "~2.0",
         "nfq-extremes/fox-utils": "~1.0",
         "ongr/elasticsearch-bundle": "dev-master",

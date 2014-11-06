@@ -51,6 +51,9 @@ class RepositoryCrawlerContext extends AbstractCrawlerContext
      */
     public function getSearch()
     {
-        return new Search();
+        $search = new Search();
+        $search->setSearchType('search_scan');
+        // Documentation claims this to be optimal for returning all docs.
+        return $search;
     }
 }
