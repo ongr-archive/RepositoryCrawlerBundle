@@ -9,15 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace ONGR\RepositoryCrawlerBundle\Crawler;
+namespace ONGR\RepositoryCrawlerBundle\Tests\Utils;
 
 use ONGR\ElasticsearchBundle\DSL\Search;
 use ONGR\ElasticsearchBundle\ORM\Repository;
+use ONGR\RepositoryCrawlerBundle\Crawler\AbstractCrawlerContext;
 
 /**
- * Universal crawler context which iterates through all documents of single ElasticSearch type.
+ * Test crawler context.
  */
-class RepositoryCrawlerContext extends AbstractCrawlerContext
+class TestCrawlerContext extends AbstractCrawlerContext
 {
     /**
      * @var Repository
@@ -47,9 +48,6 @@ class RepositoryCrawlerContext extends AbstractCrawlerContext
      */
     public function getSearch()
     {
-        $search = new Search();
-        $search->setSearchType('search_scan');
-        // Documentation claims this to be optimal for returning all docs.
-        return $search;
+        return new Search();
     }
 }

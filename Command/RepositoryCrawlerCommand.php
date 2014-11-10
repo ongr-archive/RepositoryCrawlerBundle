@@ -1,9 +1,18 @@
 <?php
 
+/*
+ * This file is part of the ONGR package.
+ *
+ * (c) NFQ Technologies UAB <info@nfq.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace ONGR\RepositoryCrawlerBundle\Command;
 
 use ONGR\RepositoryCrawlerBundle;
-use ONGR\RepositoryCrawlerBundle\Crawler;
+use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
 use ONGR\ElasticsearchBundle\Command\AbstractElasticsearchCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,7 +32,7 @@ class RepositoryCrawlerCommand extends AbstractElasticsearchCommand
         parent::configure();
 
         $this
-            ->setName('ongr:repository-crawler')
+            ->setName('ongr:repository-crawler:crawl')
             ->setDescription('Repository crawler')
             ->addArgument('context', InputArgument::REQUIRED, 'Crawler Context name')
             ->addOption('scroll-id', null, InputOption::VALUE_REQUIRED, 'Result scroll ID')
@@ -36,10 +45,9 @@ class RepositoryCrawlerCommand extends AbstractElasticsearchCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $start = microtime(true);
-        parent::execute($input, $output);
 
         /** @var Crawler $repositoryCrawler */
-        $repositoryCrawler = $this->getContainer()->get('ongr.repository_crawler');
+        $repositoryCrawler = $this->getContainer()->get('ongr.repository_crawler.crawler');
         $repositoryCrawler->setOutput($output);
 
         if ($input->getOption('async')) {
@@ -48,7 +56,7 @@ class RepositoryCrawlerCommand extends AbstractElasticsearchCommand
             $repositoryCrawler->run($input->getArgument('context'));
         }
         $output->writeln('');
-        $output->writeln(sprintf("<info>Job finished in %.2f s</info>", microtime(true) - $start));
-        $output->writeln(sprintf("<info>Memory usage: %.2f MB</info>", memory_get_peak_usage() >> 20));
+        $output->writeln(sprintf('<info>Job finished in %.2f s</info>', microtime(true) - $start));
+        $output->writeln(sprintf('<info>Memory usage: %.2f MB</info>', memory_get_peak_usage() >> 20));
     }
 }

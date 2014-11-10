@@ -1,59 +1,62 @@
 <?php
 
 /*
- *************************************************************************
- * NFQ eXtremes CONFIDENTIAL
- * [2013] - [2014] NFQ eXtremes UAB
- * All Rights Reserved.
- *************************************************************************
- * NOTICE:
- * All information contained herein is, and remains the property of NFQ eXtremes UAB.
- * Dissemination of this information or reproduction of this material is strictly forbidden
- * unless prior written permission is obtained from NFQ eXtremes UAB.
- *************************************************************************
+ * This file is part of the ONGR package.
+ *
+ * (c) NFQ Technologies UAB <info@nfq.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
-namespace Fox\ConnectionsBundle\Tests\Functional\Crawler;
+namespace ONGR\RepositoryCrawlerBundle\Tests\Unit\Crawler;
 
-use ONGR\RepositoryCrawlerBundle\RepositoryCrawlerContext;
+use ONGR\ElasticsearchBundle\Test\ElasticsearchTestCase;
+use ONGR\RepositoryCrawlerBundle\Crawler\RepositoryCrawlerContext;
 use ONGR\ElasticsearchBundle\ORM\Repository;
+use ONGR\RepositoryCrawlerBundle;
 
-class RepositoryCrawlerContextTest extends \PHPUnit_Framework_TestCase
+class RepositoryCrawlerContextTest extends ElasticsearchTestCase
 {
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|Repository
      */
-    protected function getSessionModel()
+    protected function getRepository()
     {
-        return $this->getMock('ONGR\ElasticsearchBundle\ORM\Repository');
+        return $this->getMockBuilder('ONGR\ElasticsearchBundle\ORM\Repository')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     /**
-     * Test for getModel()
+     * Test for getRepository().
      */
-    public function testGetModel()
+    public function testGetRepository()
     {
-        $context = new RepositoryCrawlerContext($this->getSessionModel());
+        $repository = $this->getRepository();
+        $context = new RepositoryCrawlerContext($repository);
         $this->assertInstanceOf('ONGR\ElasticsearchBundle\ORM\Repository', $context->getRepository());
     }
 
     /**
-     * Test for getQuery()
+     * Test for getSearch().
      */
-    public function testGetQuery()
+    public function testGetSearch()
     {
-        $context = new RepositoryCrawlerContext($this->getSessionModel());
+        $repository = $this->getRepository();
+        $context = new RepositoryCrawlerContext($repository);
         $this->assertInstanceOf('ONGR\ElasticsearchBundle\DSL\Search', $context->getSearch());
     }
 
     /**
-     * Test for finalize()
+     * Test for finalize().
      *
-     * Shouldn't do anything just like its parent
+     * Should not do anything just like its parent.
      */
     public function testFinalize()
     {
-        $context = new RepositoryCrawlerContext($this->getSessionModel());
+        $repository = $this->getRepository();
+        $context = new RepositoryCrawlerContext($repository);
         $oldContext = clone $context;
 
         $context->finalize();

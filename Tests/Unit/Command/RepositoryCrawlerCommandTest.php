@@ -1,25 +1,20 @@
 <?php
 
 /*
- *************************************************************************
- * NFQ eXtremes CONFIDENTIAL
- * [2013] - [2014] NFQ eXtremes UAB
- * All Rights Reserved.
- *************************************************************************
- * NOTICE:
- * All information contained herein is, and remains the property of NFQ eXtremes UAB.
- * Dissemination of this information or reproduction of this material is strictly forbidden
- * unless prior written permission is obtained from NFQ eXtremes UAB.
- *************************************************************************
+ * This file is part of the ONGR package.
+ *
+ * (c) NFQ Technologies UAB <info@nfq.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
-namespace Fox\ConnectionsBundle\Tests\Functional\Command;
+namespace ONGR\RepoositoryCrawlerBundle\Tests\Unit\Command;
 
 use ONGR\RepositoryCrawlerBundle\Command\RepositoryCrawlerCommand;
-use ONGR\RepositoryCrawlerBundle\Crawler;
+use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
 use ONGR\RepositoryCrawlerBundle\Tests\Utils\ResultsIteratorBuilder;
 use ONGR\ElasticsearchBundle\DSL\Search;
-use ONGR\ElasticsearchBundle\ORM\Repository;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -27,22 +22,22 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * Test fox:sync:repository-crawler behavior
+     * Test ongr:repository-crawler:crawl behaviour.
      */
     public function testCommand()
     {
         $contextName = 'test_context';
 
         /** @var Crawler|\PHPUnit_Framework_MockObject_MockObject $crawler */
-        $crawler = $this->getMockBuilder('ONGR\RepositoryCrawlerBundle\Crawler')
+        $crawler = $this->getMockBuilder('ONGR\RepositoryCrawlerBundle\Crawler\Crawler')
             ->disableOriginalConstructor()
-            ->setMethods(array('run'))
+            ->setMethods(['run'])
             ->getMock();
 
         $crawler->expects($this->once())->method('run')->with($contextName);
 
         $container = new ContainerBuilder();
-        $container->set('ongr.repository_crawler', $crawler);
+        $container->set('ongr.repository_crawler.crawler', $crawler);
 
         $command = new RepositoryCrawlerCommand();
         $command->setContainer($container);
@@ -50,19 +45,19 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
         $application = new Application();
         $application->add($command);
 
-        $commandForTesting = $application->find('ongr:repository-crawler');
+        $commandForTesting = $application->find('ongr:repository-crawler:crawl');
         $commandTester = new CommandTester($commandForTesting);
 
         $commandTester->execute(
             [
-                'command'     => $commandForTesting->getName(),
-                'context'     => $contextName
+                'command' => $commandForTesting->getName(),
+                'context' => $contextName,
             ]
         );
     }
 
     /**
-     * Test fox:sync:repository-crawler behavior in case of asynchronous processing
+     * Test ongr:repository-crawler:crawl behavior in case of asynchronous processing.
      */
     public function testCommandAsync()
     {
@@ -93,30 +88,32 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $crawler = $this->getMockBuilder('ONGR\RepositoryCrawlerBundle\Crawler')
+        $crawler = $this->getMockBuilder('ONGR\RepositoryCrawlerBundle\Crawler\Crawler')
             ->disableOriginalConstructor()
-            ->setMethods(array('runAsync'))
+            ->setMethods(['runAsync'])
             ->getMock();
 
         $crawler->expects($this->once())->method('runAsync')->with($contextName, $scrollId);
 
-        $container->set('ongr.repository_crawler', $crawler);
+        $container->set('ongr.repository_crawler.crawler', $crawler);
 
         $command->run($input, $output);
     }
 
     /**
-     * Test fox:sync:repository-crawler progress helper behavior
+     * Test ongr:repository-crawler:crawl progress helper behavior.
      */
     public function testCommandProgress()
     {
         $document1 = $this->getMockForAbstractClass('ONGR\ElasticsearchBundle\Document\DocumentInterface');
         $document2 = $this->getMockForAbstractClass('ONGR\ElasticsearchBundle\Document\DocumentInterface');
 
-        $iterator = ResultsIteratorBuilder::getMock($this, array($document1, $document2));
+        $iterator = ResultsIteratorBuilder::getMock($this, [$document1, $document2]);
 
-        $repository = $this->getMock('ONGR\ElasticsearchBundle\ORM\Repository');
-        $repository->expects($this->once())->method('exportDocuments')->will($this->returnValue($iterator));
+        $repository = $this->getMockBuilder('ONGR\ElasticsearchBundle\ORM\Repository')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $repository->expects($this->once())->method('execute')->will($this->returnValue($iterator));
 
         $context = $this->getMock('ONGR\RepositoryCrawlerBundle\Crawler\CrawlerContextInterface');
         $context->expects($this->once())->method('getRepository')->will($this->returnValue($repository));
@@ -140,14 +137,16 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
         };
 
         $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
+        $outputFormatter = $this->getMock('Symfony\Component\Console\Formatter\OutputFormatterInterface');
         $output->expects($this->any())->method('write')->will($this->returnCallback($callback));
         $output->expects($this->any())->method('isDecorated')->will($this->returnValue(true));
+        $output->expects($this->any())->method('getFormatter')->will($this->returnValue($outputFormatter));
 
         $crawler = new Crawler();
         $crawler->addContext($contextName, $context);
         $crawler->setOutput($output);
 
-        $container->set('ongr.repository_crawler', $crawler);
+        $container->set('ongr.repository_crawler.crawler', $crawler);
 
         $command->run($input, $output);
 

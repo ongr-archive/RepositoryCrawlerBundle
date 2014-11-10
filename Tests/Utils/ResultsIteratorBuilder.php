@@ -1,21 +1,17 @@
 <?php
 
 /*
- *************************************************************************
- * NFQ eXtremes CONFIDENTIAL
- * [2013] - [2014] NFQ eXtremes UAB
- * All Rights Reserved.
- *************************************************************************
- * NOTICE:
- * All information contained herein is, and remains the property of NFQ eXtremes UAB.
- * Dissemination of this information or reproduction of this material is strictly forbidden
- * unless prior written permission is obtained from NFQ eXtremes UAB.
- *************************************************************************
+ * This file is part of the ONGR package.
+ *
+ * (c) NFQ Technologies UAB <info@nfq.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace ONGR\RepositoryCrawlerBundle\Tests\Utils;
 
-use ONGR\ElasticsearchBundle\Result\AbstractResultsIterator;
+use ONGR\ElasticsearchBundle\Result\DocumentIterator;
 use ONGR\ElasticsearchBundle\Result\DocumentScanIterator;
 
 /**
@@ -28,14 +24,14 @@ class ResultsIteratorBuilder
      * @param array $documents
      * @param bool $chunk
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|AbstractResultsIterator|DocumentScanIterator
+     * @return \PHPUnit_Framework_MockObject_MockObject|DocumentIterator|DocumentScanIterator
      */
     public static function getMock($test, array $documents, $chunk = false)
     {
         if ($chunk) {
-            $class = 'ONGR\ElasticsearchBundle\Result\AbstractResultsIterator';
-        } else {
             $class = 'ONGR\ElasticsearchBundle\Result\DocumentScanIterator';
+        } else {
+            $class = 'ONGR\ElasticsearchBundle\Result\DocumentIterator';
         }
 
         $array = new \ArrayIterator($documents);

@@ -1,100 +1,104 @@
 <?php
 
-namespace Fox\ConnectionsBundle\Tests\Integration\Command;
+/*
+ * This file is part of the ONGR package.
+ *
+ * (c) NFQ Technologies UAB <info@nfq.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace ONGR\RepositoryCrawlerBundle\Tests\Functional\Command;
 
 use ONGR\RepositoryCrawlerBundle\Command\RepositoryCrawlerCommand;
-use ONGR\RepositoryCrawlerBundle\Crawler;
-use ONGR\RepositoryCrawlerBundle\CrawlerContextInterface;
-use ONGR\ElasticsearchBundle\Document\DocumentInterface;
+use ONGR\RepositoryCrawlerBundle\Tests\Utils\TestDocumentProcessor;
+use ONGR\RepositoryCrawlerBundle\Tests\Utils\TestCrawlerContext;
+use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
 use ONGR\ElasticsearchBundle\ORM\Repository;
-use ONGR\ElasticsearchBundle\DSL\Search;
 use ONGR\ElasticsearchBundle\Test\ElasticsearchTestCase;
 use ONGR\ConnectionsBundle\Tests\Model\ProductModel;
+
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * Integration test for fox:repository:crawler command
+ * Integration test for ongr:repository-crawler:crawl command.
  */
 class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
 {
+
     /**
-     * {@inheritdoc}
+     * Creates and returns ProductModel array filled with test data.
+     *
+     * @param Repository $repository
+     *
+     * @return array|ProductModel
      */
-    protected function getDocumentsData()
+    protected function getDocumentsData($repository)
     {
-        return [
-            'ProductModel' => [
-                [
-                    '_id' => 'test-product-1',
-                    'id' => 'test-product-1',
-                    'parentId' => '',
-                    'sku' => 'P00001',
-                    'title' => 'Test title'
-                ],
-                [
-                    '_id' => 'test-product-2',
-                    'id' => 'test-product-2',
-                    'parentId' => '',
-                    'sku' => 'P00002',
-                    'title' => 'Test titl2'
-                ],
-            ],
-        ];
+        $document = $repository->createDocument();
+
+        $document->setId('test-product-1');
+        $document->title = 'Test title';
+        $document->setScore('1.0');
+
+        $this->getManager()->persist($document);
+
+        $document2 = $repository->createDocument();
+        $document2->setId('test-product-2');
+        $document2->title = 'Test title2';
+        $document2->setScore('1.0');
+
+        $this->getManager()->persist($document2);
+        $this->getManager()->commit();
+
+
+        return [$document, $document2];
     }
 
     /**
-     * Check if all documents are passed to the crawler context from DB
+     * Check if all documents are passed to the crawler context from DB.
      */
     public function testExecute()
     {
         $kernel = self::createClient()->getKernel();
-        $container = $kernel->getContainer();
-
-        $product1 = new ProductModel();
-        $product1->setScore(0.0);
-
-        $product1->assign($this->getDocumentsData()['ProductModel'][0]);
-
-        $product2 = new ProductModel();
-        $product2->setDocumentScore(0.0);
-        $product2->assign($this->getDocumentsData()['ProductModel'][1]);
-        $expectedProducts = [$product1, $product2];
-        $actualProducts = [];
 
         /** @var Repository $repository */
         $repository = $this->getManager()->getRepository('AcmeTestBundle:Product');
 
-        /** @var CrawlerContextInterface|\PHPUnit_Framework_MockObject_MockObject $dummyContext */
-        $dummyContext = $this->getMockBuilder('ONGR\RepositoryCrawlerBundle\Crawler\CrawlerContextInterface')
-            ->getMock();
-        $dummyContext->expects($this->once())->method('getRepository')->willReturn($repository);
-        $dummyContext->expects($this->once())->method('getSearch')->willReturn(new Search());
-        $dummyContext->expects($this->exactly(count($expectedProducts)))->method('processData')->willReturnCallback(
-            function (DocumentInterface $baseModel) use (&$actualProducts) {
-                $actualProducts[] = $baseModel;
-            }
-        );
+        $expectedProducts = $this->getDocumentsData($repository);
+
+        /** @var TestDocumentProcessor $processor */
+        $processor = new TestDocumentProcessor();
+
+        /** @var TestCrawlerContext $context */
+        $context = new TestCrawlerContext($repository);
+        $context->addDocumentProcessor($processor);
 
         /** @var Crawler $repositoryCrawler */
-        $repositoryCrawler = $this->getContainer()->get('ongr.repository_crawler');
-        $repositoryCrawler->addContext('test', $dummyContext);
+        $repositoryCrawler = $kernel->getContainer()->get('ongr.repository_crawler.crawler');
+        $repositoryCrawler->addContext('test_context', $context);
 
         $application = new Application($kernel);
         $application->add(new RepositoryCrawlerCommand());
-        $command = $application->find('ongr:repository-crawler');
+        $command = $application->find('ongr:repository-crawler:crawl');
 
         $commandTester = new CommandTester($command);
+
         $commandTester->execute(
             [
                 'command' => $command->getName(),
-                'context' => 'test',
+                'context' => 'test_context',
             ]
         );
 
         sort($expectedProducts);
-        sort($actualProducts);
+        if (is_array($processor->documentCollection)) {
+            sort($processor->documentCollection);
+        }
 
-        $this->assertEquals($expectedProducts, $actualProducts);
+
+        $this->assertEquals($expectedProducts, $processor->documentCollection);
     }
 }

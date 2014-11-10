@@ -1,21 +1,17 @@
 <?php
 
 /*
- *************************************************************************
- * NFQ eXtremes CONFIDENTIAL
- * [2013] - [2014] NFQ eXtremes UAB
- * All Rights Reserved.
- *************************************************************************
- * NOTICE:
- * All information contained herein is, and remains the property of NFQ eXtremes UAB.
- * Dissemination of this information or reproduction of this material is strictly forbidden
- * unless prior written permission is obtained from NFQ eXtremes UAB.
- *************************************************************************
+ * This file is part of the ONGR package.
+ *
+ * (c) NFQ Technologies UAB <info@nfq.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
-namespace Fox\ConnectionsBundle\Tests\Functional\Crawler;
+namespace ONGR\RepositoryCrawlerBundle\Tests\Functional\Crawler;
 
-use ONGR\RepositoryCrawlerBundle\AbstractCrawlerContext;
+use ONGR\RepositoryCrawlerBundle\Crawler\AbstractCrawlerContext;
 
 class AbstractCrawlerContextTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,15 +20,15 @@ class AbstractCrawlerContextTest extends \PHPUnit_Framework_TestCase
      */
     public function testProcessData()
     {
-        $processor = $this->getMock('ONGR\RepositoryCrawlerBundle\Crawler\DocumentProcessorInterface');
+        $processor = $this->getMockForAbstractClass('ONGR\RepositoryCrawlerBundle\Crawler\DocumentProcessorInterface');
         $processor->expects($this->once())->method('handleDocument');
 
-        $processor2 = $this->getMock('ONGR\RepositoryCrawlerBundle\Crawler\DocumentProcessorInterface');
+        $processor2 = $this->getMockForAbstractClass('ONGR\RepositoryCrawlerBundle\Crawler\DocumentProcessorInterface');
         $processor2->expects($this->once())->method('handleDocument');
 
         /** @var \PHPUnit_Framework_MockObject_MockObject|AbstractCrawlerContext $contextService */
         $contextService = $this->getMockBuilder('ONGR\RepositoryCrawlerBundle\Crawler\AbstractCrawlerContext')
-            ->setMethods(array('getModel', 'getQuery'))
+            ->setMethods(['getRepository', 'getSearch'])
             ->getMock();
 
         $contextService->addDocumentProcessor($processor);

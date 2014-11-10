@@ -1,19 +1,15 @@
 <?php
 
 /*
- *************************************************************************
- * NFQ eXtremes CONFIDENTIAL
- * [2013] - [2014] NFQ eXtremes UAB
- * All Rights Reserved.
- *************************************************************************
- * NOTICE: 
- * All information contained herein is, and remains the property of NFQ eXtremes UAB.
- * Dissemination of this information or reproduction of this material is strictly forbidden
- * unless prior written permission is obtained from NFQ eXtremes UAB.
- *************************************************************************
+ * This file is part of the ONGR package.
+ *
+ * (c) NFQ Technologies UAB <info@nfq.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
-namespace ONGR\RepositoryCrawlerBundle;
+namespace ONGR\RepositoryCrawlerBundle\Crawler;
 
 use ONGR\ElasticsearchBundle\DSL\Search;
 use ONGR\ElasticsearchBundle\ORM\Repository;
@@ -29,7 +25,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @package ONGR\RepositoryCrawlerBundle
  */
-
 class Crawler
 {
     /**
@@ -40,7 +35,7 @@ class Crawler
     /**
      * @var EventDispatcherInterface
      */
-    protected $dispatcher;
+    protected $dispatcher = null;
 
     /**
      * @var OutputInterface
@@ -106,8 +101,10 @@ class Crawler
         $search = $contextService->getSearch();
 
         $resultSet = $contextService->getRepository()->execute($search, Repository::RESULTS_OBJECT);
-        $this->processData($contextService, $resultSet, $this->getProgressHelper($resultSet->count()));
 
+        if ($resultSet !== null) {
+            $this->processData($contextService, $resultSet, $this->getProgressHelper($resultSet->count()));
+        }
         $contextService->finalize();
     }
 
@@ -119,6 +116,10 @@ class Crawler
      */
     public function runAsync($context, $scrollId = null)
     {
+        if (!($this->dispatcher instanceof EventDispatcherInterface)) {
+            throw new \RuntimeException('Event dispatcher must be set when running crawler in async mode.');
+        }
+
         $contextService = $this->getContext($context);
 
         if ($scrollId === null) {
@@ -177,7 +178,7 @@ class Crawler
             throw new \RuntimeException('Event dispatcher must be set when running crawler in async mode.');
         }
 
-        $this->dispatcher->dispatch('ongr.repositorycrawler.chunk', new CrawlerChunkEvent($scrollId));
+        $this->dispatcher->dispatch('ongr.repository_crawler.chunk', new CrawlerChunkEvent($scrollId));
     }
 
     /**
