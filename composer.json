@@ -24,8 +24,8 @@
         "symfony/symfony": "~2.3",
         "symfony/monolog-bundle": "~2.0",
         "nfq-extremes/fox-utils": "~1.0",
-        "ongr/elasticsearch-bundle": "dev-master",
-        "ongr/connections-bundle": "dev-master"
+        "ongr/connections-bundle": "dev-master",
+        "ongr/elasticsearch-bundle": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.2",
@@ -35,8 +35,8 @@
         "ongr/oxid-bundle": "Allows to transfer shop data from OXID to FOXX"
     },
     "autoload": {
-        "psr-0": {
-            "ONGR\\RepositoryCrawlerBundle": ""
+        "psr-4": {
+            "ONGR\\RepositoryCrawlerBundle\\": ""
         }
     },
     "target-dir": "ONGR/RepositoryCrawlerBundle"
