@@ -69,11 +69,3 @@ ongr_elasticsearch:
             connection: bar
             mappings:
                 - ONGRElasticsearchBundle
-
-services:
-   ongr.repository_crawler.crawler:
-        class: %ongr.repository_crawler.crawler.class%
-        calls:
-            - [setDispatcher, [@event_dispatcher]]
-
-
