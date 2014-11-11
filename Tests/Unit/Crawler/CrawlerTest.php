@@ -84,7 +84,7 @@ class CrawlerTest extends ElasticsearchTestCase
 
         $dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
         $dispatcher->expects($this->exactly(2))->method('dispatch')->with(
-            'ongr.repository_crawler.chunk',
+            'ongr.pipeline.repository_crawler.chunkEvent.source',
             $this->anything()
         );
 

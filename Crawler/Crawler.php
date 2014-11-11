@@ -13,8 +13,8 @@ namespace ONGR\RepositoryCrawlerBundle\Crawler;
 
 use ONGR\ElasticsearchBundle\DSL\Search;
 use ONGR\ElasticsearchBundle\ORM\Repository;
-use ONGR\RepositoryCrawlerBundle\Event\CrawlerChunkEvent;
 use ONGR\ElasticsearchBundle\Result\AbstractResultsIterator;
+use ONGR\ConnectionsBundle\Pipeline\PipelineFactory;
 use Symfony\Component\Console\Helper\ProgressHelper;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -178,7 +178,12 @@ class Crawler
             throw new \RuntimeException('Event dispatcher must be set when running crawler in async mode.');
         }
 
-        $this->dispatcher->dispatch('ongr.repository_crawler.chunk', new CrawlerChunkEvent($scrollId));
+        $pf = new PipelineFactory();
+        $pf->setClassName('ONGR\ConnectionsBundle\Pipeline\Pipeline');
+        $pipeline = $pf->create('repository_crawler.chunkEvent');
+        $pipeline->setDispatcher($this->dispatcher);
+        $pipeline->setContext(['scrollId' => $scrollId]);
+        $pipeline->execute();
     }
 
     /**
