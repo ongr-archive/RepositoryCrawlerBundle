@@ -13,7 +13,7 @@ namespace ONGR\RepositoryCrawlerBundle\Tests\Unit\Crawler;
 
 
 use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
-use ONGR\RepositoryCrawlerBundle\Tests\Utils\ResultsIteratorBuilder;
+use ONGR\RepositoryCrawlerBundle\Tests\Fixtures\ResultsIteratorBuilder;
 use ONGR\ElasticsearchBundle\DSL\Search;
 use ONGR\ElasticsearchBundle\Test\ElasticsearchTestCase;
 

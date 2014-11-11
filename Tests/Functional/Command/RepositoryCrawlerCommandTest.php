@@ -12,8 +12,8 @@
 namespace ONGR\RepositoryCrawlerBundle\Tests\Functional\Command;
 
 use ONGR\RepositoryCrawlerBundle\Command\RepositoryCrawlerCommand;
-use ONGR\RepositoryCrawlerBundle\Tests\Utils\TestDocumentProcessor;
-use ONGR\RepositoryCrawlerBundle\Tests\Utils\TestCrawlerContext;
+use ONGR\RepositoryCrawlerBundle\Tests\Fixtures\TestDocumentProcessor;
+use ONGR\RepositoryCrawlerBundle\Tests\Fixtures\TestCrawlerContext;
 use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
 use ONGR\ElasticsearchBundle\ORM\Repository;
 use ONGR\ElasticsearchBundle\Test\ElasticsearchTestCase;

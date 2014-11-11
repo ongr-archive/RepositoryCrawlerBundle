@@ -13,7 +13,7 @@ namespace ONGR\RepoositoryCrawlerBundle\Tests\Unit\Command;
 
 use ONGR\RepositoryCrawlerBundle\Command\RepositoryCrawlerCommand;
 use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
-use ONGR\RepositoryCrawlerBundle\Tests\Utils\ResultsIteratorBuilder;
+use ONGR\RepositoryCrawlerBundle\Tests\Fixtures\ResultsIteratorBuilder;
 use ONGR\ElasticsearchBundle\DSL\Search;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ONGR\RepositoryCrawlerBundle\Tests\Utils;
+namespace ONGR\RepositoryCrawlerBundle\Tests\Fixtures;
 
 use ONGR\ElasticsearchBundle\DSL\Search;
 use ONGR\ElasticsearchBundle\ORM\Repository;
