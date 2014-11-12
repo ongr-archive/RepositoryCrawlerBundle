@@ -84,24 +84,26 @@ class CrawlerTest extends ElasticsearchTestCase
 
         $dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
         $dispatcher->expects($this->exactly(2))->method('dispatch')->with(
-            'ongr.repository_crawler.chunk',
+            'ongr.pipeline.repository_crawler.chunkEvent.source',
             $this->anything()
         );
 
-        $crawler = new Crawler();
-        $crawler->setDispatcher($dispatcher);
+        $pipeline = $this->getContainer()->get('ongr_connections.pipeline_factory');
+        $pipeline->setDispatcher($dispatcher);
+        $crawler = $this->getContainer()->get('ongr.repository_crawler.crawler');
+        $crawler->setPipeline($pipeline);
         $crawler->addContext('test_context', $context);
         $crawler->runAsync('test_context');
         $crawler->runAsync('test_context', '1');
     }
 
     /**
-     * Test for runAsync() in case of event dispatcher is not set.
+     * Test for runAsync() in case of pipeline is not set.
      *
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Event dispatcher must be set when running crawler in async mode.
+     * @expectedExceptionMessage Pipeline must be set when running crawler in async mode.
      */
-    public function testRunAsyncException()
+    public function testRunAsyncExceptionPipeline()
     {
         $crawler = new Crawler();
         $crawler->runAsync('test_context');

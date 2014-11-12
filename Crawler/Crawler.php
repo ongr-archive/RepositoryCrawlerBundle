@@ -11,14 +11,15 @@
 
 namespace ONGR\RepositoryCrawlerBundle\Crawler;
 
+use ONGR\ConnectionsBundle\Pipeline\PipelineFactory;
 use ONGR\ElasticsearchBundle\DSL\Search;
 use ONGR\ElasticsearchBundle\ORM\Repository;
-use ONGR\RepositoryCrawlerBundle\Event\CrawlerChunkEvent;
 use ONGR\ElasticsearchBundle\Result\AbstractResultsIterator;
+use ONGR\ConnectionsBundle\Pipeline\Pipeline;
+use ONGR\RepositoryCrawlerBundle\Event\CrawlerChunkEvent;
 use Symfony\Component\Console\Helper\ProgressHelper;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class Crawler - crawls repository, processes each and every document.
@@ -27,15 +28,16 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class Crawler
 {
+
     /**
      * @var CrawlerContextInterface[]
      */
     protected $contexts;
 
     /**
-     * @var EventDispatcherInterface
+     * @var Pipeline
      */
-    protected $dispatcher = null;
+    protected $pipeline = null;
 
     /**
      * @var OutputInterface
@@ -43,13 +45,13 @@ class Crawler
     protected $output;
 
     /**
-     * Sets event dispatcher.
+     * Pipeline factory setter.
      *
-     * @param EventDispatcherInterface $dispatcher
+     * @param PipelineFactory $pipelineFactory
      */
-    public function setDispatcher(EventDispatcherInterface $dispatcher)
+    public function setPipeline(PipelineFactory $pipelineFactory)
     {
-        $this->dispatcher = $dispatcher;
+        $this->pipeline = $pipelineFactory->create('repository_crawler.chunkEvent');
     }
 
     /**
@@ -113,11 +115,13 @@ class Crawler
      *
      * @param string $context
      * @param string $scrollId
+     *
+     * @throws \RuntimeException
      */
     public function runAsync($context, $scrollId = null)
     {
-        if (!($this->dispatcher instanceof EventDispatcherInterface)) {
-            throw new \RuntimeException('Event dispatcher must be set when running crawler in async mode.');
+        if ($this->pipeline === null) {
+            throw new \RuntimeException('Pipeline must be set when running crawler in async mode.');
         }
 
         $contextService = $this->getContext($context);
@@ -135,7 +139,9 @@ class Crawler
             );
         }
 
-        $this->pushNextScrollId($resultSet->getScrollId());
+        $this->pipeline->setContext(new CrawlerChunkEvent($resultSet->getScrollId()));
+        $this->pipeline->execute();
+
         $this->processData($contextService, $resultSet, $this->getProgressHelper($resultSet->count()));
 
         $contextService->finalize();
@@ -163,22 +169,6 @@ class Crawler
         }
 
         return $progress;
-    }
-
-    /**
-     * Dispatches event with next scroll ID.
-     *
-     * @param string $scrollId
-     *
-     * @throws \RuntimeException
-     */
-    protected function pushNextScrollId($scrollId)
-    {
-        if ($this->dispatcher === null) {
-            throw new \RuntimeException('Event dispatcher must be set when running crawler in async mode.');
-        }
-
-        $this->dispatcher->dispatch('ongr.repository_crawler.chunk', new CrawlerChunkEvent($scrollId));
     }
 
     /**
