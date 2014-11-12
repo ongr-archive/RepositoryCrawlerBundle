@@ -1,11 +1,20 @@
 parameters:
 
   ongr.repository_crawler.crawler.class: ONGR\RepositoryCrawlerBundle\Crawler\Crawler
+  ongr_connections.pipeline_factory.class: ONGR\ConnectionsBundle\Pipeline\PipelineFactory
+  ongr_connections.pipeline_factory.pipeline_class: ONGR\ConnectionsBundle\Pipeline\Pipeline
+
 
 services:
 
   ongr.repository_crawler.crawler:
       class: %ongr.repository_crawler.crawler.class%
       calls:
-          - [setDispatcher, [@event_dispatcher]]
+          - [setPipeline, [@ongr_connections.pipeline_factory]]
       scope: container
+
+  ongr_connections.pipeline_factory:
+      class: %ongr_connections.pipeline_factory.class%
+      calls:
+          - [ setDispatcher, [ @event_dispatcher ] ]
+          - [ setClassName, [ %ongr_connections.pipeline_factory.pipeline_class% ] ]
