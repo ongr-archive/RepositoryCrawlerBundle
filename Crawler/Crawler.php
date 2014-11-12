@@ -11,15 +11,17 @@
 
 namespace ONGR\RepositoryCrawlerBundle\Crawler;
 
+use ONGR\RepositoryCrawlerBundle\Event\CrawlerChunkEvent;
+use ONGR\RepositoryCrawlerBundle\Event\CrawlerPipelineContext;
 use ONGR\ConnectionsBundle\Pipeline\PipelineFactory;
 use ONGR\ElasticsearchBundle\DSL\Search;
 use ONGR\ElasticsearchBundle\ORM\Repository;
 use ONGR\ElasticsearchBundle\Result\AbstractResultsIterator;
 use ONGR\ConnectionsBundle\Pipeline\Pipeline;
-use ONGR\RepositoryCrawlerBundle\Event\CrawlerChunkEvent;
 use Symfony\Component\Console\Helper\ProgressHelper;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
+
 
 /**
  * Class Crawler - crawls repository, processes each and every document.
@@ -35,9 +37,14 @@ class Crawler
     protected $contexts;
 
     /**
-     * @var Pipeline
+     * @var Pipeline chunk pipeline
      */
-    protected $pipeline = null;
+    protected $pipelineChunk = null;
+
+    /**
+     * @var PipelineFactory pipeline factory
+     */
+    protected $pipelineFactory = null;
 
     /**
      * @var OutputInterface
@@ -49,9 +56,19 @@ class Crawler
      *
      * @param PipelineFactory $pipelineFactory
      */
-    public function setPipeline(PipelineFactory $pipelineFactory)
+    public function setPipelineFactory(PipelineFactory $pipelineFactory)
     {
-        $this->pipeline = $pipelineFactory->create('repository_crawler.chunkEvent');
+        $this->pipelineFactory = $pipelineFactory;
+    }
+
+    /**
+     * Sets pipeline for chunks.
+     *
+     * @throws \RuntimeException
+     */
+    public function setPipelineChunk()
+    {
+        $this->pipelineChunk = $this->pipelineFactory->create('repository_crawler.chunkEvent');
     }
 
     /**
@@ -120,7 +137,7 @@ class Crawler
      */
     public function runAsync($context, $scrollId = null)
     {
-        if ($this->pipeline === null) {
+        if ($this->pipelineChunk === null) {
             throw new \RuntimeException('Pipeline must be set when running crawler in async mode.');
         }
 
@@ -139,10 +156,10 @@ class Crawler
             );
         }
 
-        $this->pipeline->setContext(new CrawlerChunkEvent($resultSet->getScrollId()));
-        $this->pipeline->execute();
+        $this->pipelineChunk->setContext(new CrawlerChunkEvent($resultSet->getScrollId()));
+        $this->pipelineChunk->execute();
 
-        $this->processData($contextService, $resultSet, $this->getProgressHelper($resultSet->count()));
+        $this->processData($context, $resultSet, $this->getProgressHelper($resultSet->count()));
 
         $contextService->finalize();
     }
@@ -180,11 +197,18 @@ class Crawler
      */
     protected function processData(CrawlerContextInterface $context, AbstractResultsIterator $resultSet, $progress)
     {
-        foreach ($resultSet as $result) {
-            $context->processData($result);
-            if ($progress !== null) {
-                $progress->advance();
-            }
-        }
+        $pipelineContext = new CrawlerPipelineContext();
+        $pipelineContext->setPipeContext($context, $resultSet);
+
+        $pipeline = $this->pipelineFactory->create(
+            'ongr.repository_crawler.processEvent',
+            [
+                'consumers' => ['ongr.pipeline.repository_crawler.crawler_process_document'],
+                'source' => ['ongr.pipeline.repository_crawler.crawler_source'],
+            ]
+        );
+        $pipeline->setContext($pipelineContext);
+        $pipeline->execute();
+        $progress->advance($resultSet->count());
     }
 }

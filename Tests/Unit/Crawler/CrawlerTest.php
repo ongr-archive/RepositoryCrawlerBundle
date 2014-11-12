@@ -91,7 +91,7 @@ class CrawlerTest extends ElasticsearchTestCase
         $pipeline = $this->getContainer()->get('ongr_connections.pipeline_factory');
         $pipeline->setDispatcher($dispatcher);
         $crawler = $this->getContainer()->get('ongr.repository_crawler.crawler');
-        $crawler->setPipeline($pipeline);
+        $crawler->setPipelineChunk($pipeline);
         $crawler->addContext('test_context', $context);
         $crawler->runAsync('test_context');
         $crawler->runAsync('test_context', '1');
