@@ -23,25 +23,25 @@ class ONGRRepositoryCrawlerExtensionTest extends WebTestCase
     {
         $out = [
             [
-                'ongr.repository_crawler.crawler.class',
+                'ongr_repository_crawler.crawler.class',
                 'string',
                 true,
                 '',
             ],
             [
-                'ongr.repository_crawler.process_document.class',
+                'ongr_repository_crawler.process_document.class',
                 'string',
                 true,
                 '',
             ],
             [
-                'ongr.repository_crawler.crawler_context.class',
+                'ongr_repository_crawler.crawler_context.class',
                 'string',
                 true,
                 '',
             ],
             [
-                'ongr.repository_crawler.crawler_source.class',
+                'ongr_repository_crawler.crawler_source.class',
                 'string',
                 true,
                 '',
