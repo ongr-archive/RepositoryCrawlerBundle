@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  */
 
-
 namespace ONGR\RepositoryCrawlerBundle\Event;
 
 use ONGR\RepositoryCrawlerBundle\Crawler\CrawlerContextInterface;
@@ -61,4 +60,5 @@ class CrawlerPipelineContext
     {
         return $this->results;
     }
-} 
+
+}

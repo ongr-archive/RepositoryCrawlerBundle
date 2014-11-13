@@ -22,7 +22,6 @@ use Symfony\Component\Console\Helper\ProgressHelper;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
 
-
 /**
  * Class Crawler - crawls repository, processes each and every document.
  *
