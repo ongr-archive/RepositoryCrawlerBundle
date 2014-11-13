@@ -29,7 +29,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Crawler
 {
-
     /**
      * @var CrawlerContextInterface[]
      */
