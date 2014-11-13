@@ -81,10 +81,9 @@ class CrawlerTest extends ElasticsearchTestCase
         $context->expects($this->any())->method('getSearch')->will($this->returnValue(new Search()));
         $context->expects($this->any())->method('finalize');
 
-
         $dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
         $dispatcher->expects($this->exactly(12))->method('dispatch')->with(
-            $this->stringContains('ongr.pipeline.ongr.repository_crawler'),
+            $this->stringContains('ongr_repository_crawler'),
             $this->anything()
         );
         // Explanation: 12 = ((start, source, modify, consume, finish) + (crawlerChunkEvent))*2.
@@ -99,10 +98,10 @@ class CrawlerTest extends ElasticsearchTestCase
     }
 
     /**
-     * Test for runAsync() in case of pipeline is not set.
+     * Test for runAsync() in case context is not set.
      *
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Pipeline must be set when running crawler in async mode.
+     * @expectedExceptionMessage Context with name 'test_context' does not exist.
      */
     public function testRunAsyncExceptionPipeline()
     {

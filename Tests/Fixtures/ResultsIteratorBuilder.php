@@ -21,8 +21,8 @@ class ResultsIteratorBuilder
 {
     /**
      * @param \PHPUnit_Framework_TestCase $test
-     * @param array $documents
-     * @param bool $chunk
+     * @param array                       $documents
+     * @param bool                        $chunk
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|DocumentIterator|DocumentScanIterator
      */

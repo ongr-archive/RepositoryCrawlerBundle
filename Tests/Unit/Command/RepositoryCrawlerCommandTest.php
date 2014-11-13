@@ -146,6 +146,8 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
         $dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
 
         $pipelineFactory = new PipelineFactory();
+
+        $pipelineFactory->setClassName('\ONGR\ConnectionsBundle\Pipeline\Pipeline');
         $pipelineFactory->setDispatcher($dispatcher);
 
         $crawler = new Crawler();

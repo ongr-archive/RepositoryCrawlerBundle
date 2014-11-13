@@ -11,4 +11,6 @@ parameters:
     locale: en
     secret: 'superdupersecretkey#pleasedonttellitanyone'
 
-    ongr.repository_crawler.crawler_source.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerSourceEventHandler
+    ongr_repository_crawler.crawler_source.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerSourceEventHandler
+    ongr_connections.pipeline_factory.class: ONGR\ConnectionsBundle\Pipeline\PipelineFactory
+    ongr_connections.pipeline_factory.pipeline_class: \ONGR\ConnectionsBundle\Pipeline\Pipeline

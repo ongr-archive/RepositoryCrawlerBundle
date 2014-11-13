@@ -1,0 +1,6 @@
+services:
+  ongr_connections.pipeline_factory:
+        class: %ongr_connections.pipeline_factory.class%
+        calls:
+            - [ setDispatcher, [ @event_dispatcher ] ]
+            - [ setClassName, [ %ongr_connections.pipeline_factory.pipeline_class% ] ]

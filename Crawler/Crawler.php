@@ -24,8 +24,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class Crawler - crawls repository, processes each and every document.
- *
- * @package ONGR\RepositoryCrawlerBundle
  */
 class Crawler
 {
@@ -35,12 +33,16 @@ class Crawler
     protected $contexts;
 
     /**
-     * @var Pipeline chunk pipeline
+     * Chunk pipeline.
+     *
+     * @var Pipeline
      */
     protected $pipelineChunk = null;
 
     /**
-     * @var PipelineFactory pipeline factory
+     * Pipeline factory.
+     *
+     * @var PipelineFactory
      */
     protected $pipelineFactory = null;
 
@@ -57,17 +59,14 @@ class Crawler
     public function setPipelineFactory(PipelineFactory $pipelineFactory)
     {
         $this->pipelineFactory = $pipelineFactory;
-        $this->pipelineFactory->setClassName('ONGR\ConnectionsBundle\Pipeline\Pipeline');
     }
 
     /**
      * Sets pipeline for chunks.
-     *
-     * @throws \RuntimeException
      */
     public function setPipelineChunk()
     {
-        $this->pipelineChunk = $this->pipelineFactory->create('ongr.repository_crawler.chunkEvent');
+        $this->pipelineChunk = $this->pipelineFactory->create('ongr_repository_crawler.chunkEvent');
     }
 
     /**
@@ -131,15 +130,9 @@ class Crawler
      *
      * @param string $context
      * @param string $scrollId
-     *
-     * @throws \RuntimeException
      */
     public function runAsync($context, $scrollId = null)
     {
-        if ($this->pipelineChunk === null) {
-            throw new \RuntimeException('Pipeline must be set when running crawler in async mode.');
-        }
-
         $contextService = $this->getContext($context);
 
         if ($scrollId === null) {
@@ -193,16 +186,16 @@ class Crawler
     /**
      * Iterates through result set and passes objects to crawler context service.
      *
-     * @param CrawlerContextInterface       $context
-     * @param AbstractResultsIterator       $resultSet
-     * @param ProgressHelper|ProgressBar    $progress
+     * @param CrawlerContextInterface    $context
+     * @param AbstractResultsIterator    $resultSet
+     * @param ProgressHelper|ProgressBar $progress
      */
     protected function processData(CrawlerContextInterface $context, AbstractResultsIterator $resultSet, $progress)
     {
         $pipelineContext = new CrawlerPipelineContext();
         $pipelineContext->setPipeContext($context, $resultSet);
 
-        $pipeline = $this->pipelineFactory->create('ongr.repository_crawler.processEvent');
+        $pipeline = $this->pipelineFactory->create('ongr_repository_crawler');
         $pipeline->setContext($pipelineContext);
         $pipeline->execute();
 

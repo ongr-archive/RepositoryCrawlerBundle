@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the ONGR package.
  *
@@ -14,18 +15,20 @@ use ONGR\ElasticsearchBundle\Result\AbstractResultsIterator;
 
 /**
  * Holds pipeline context for crawler.
- *
- * @package ONGR\RepositoryCrawlerBundle\Event
  */
 class CrawlerPipelineContext
 {
     /**
-     * @var CrawlerContextInterface context
+     * Crawler context.
+     *
+     * @var CrawlerContextInterface
      */
     protected $context;
 
     /**
-     * @var AbstractResultsIterator results
+     * Results.
+     *
+     * @var AbstractResultsIterator
      */
     protected $results;
 

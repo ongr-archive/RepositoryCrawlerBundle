@@ -5,7 +5,7 @@ parameters:
   ongr_repository_crawler.crawler_context.class: ONGR\RepositoryCrawlerBundle\Crawler\RepositoryCrawlerContext
   ongr_repository_crawler.crawler_source.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerSourceEventHandler
   ongr_connections.pipeline_factory.class: ONGR\ConnectionsBundle\Pipeline\PipelineFactory
-  ongr_connections.pipeline_factory.pipeline_class: ONGR\ConnectionsBundle\Pipeline\Pipeline
+  ongr_connections.pipeline_factory.pipeline_class: \ONGR\ConnectionsBundle\Pipeline\Pipeline
 
 
 services:
@@ -28,9 +28,9 @@ services:
   ongr.pipeline.repository_crawler.crawler_process_document:
       class: %ongr_repository_crawler.process_document.class%
       tags:
-          - { name: kernel.event_listener, event: 'ongr.pipeline.ongr.repository_crawler.processEvent.consume', method: 'onConsume' }
+          - { name: kernel.event_listener, event: 'ongr.pipeline.ongr_repository_crawler.consume', method: 'onConsume' }
 
   ongr.pipeline.repository_crawler.crawler_source:
       class: %ongr_repository_crawler.crawler_source.class%
       tags:
-          - { name: kernel.event_listener, event: 'ongr.pipeline.ongr.repository_crawler.processEvent.source', method: 'onSource' }
+          - { name: kernel.event_listener, event: 'ongr.pipeline.ongr_repository_crawler.source', method: 'onSource' }

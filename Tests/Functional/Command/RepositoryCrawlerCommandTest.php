@@ -53,8 +53,10 @@ class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
         $this->getManager()->persist($document2);
         $this->getManager()->commit();
 
-
-        return [$document, $document2];
+        return [
+            $document,
+            $document2,
+        ];
     }
 
     /**
@@ -97,7 +99,6 @@ class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
         if (is_array($processor->documentCollection)) {
             sort($processor->documentCollection);
         }
-
 
         $this->assertEquals($expectedProducts, $processor->documentCollection);
     }

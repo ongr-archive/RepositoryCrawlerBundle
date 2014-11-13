@@ -69,3 +69,5 @@ ongr_elasticsearch:
             connection: bar
             mappings:
                 - ONGRElasticsearchBundle
+
+

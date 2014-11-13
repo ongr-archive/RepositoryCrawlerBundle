@@ -21,7 +21,7 @@ class CrawlerChunkEvent extends Event
     /**
      * @var string
      */
-    public $scrollId;
+    private $scrollId;
 
     /**
      * Constructor.
@@ -31,5 +31,16 @@ class CrawlerChunkEvent extends Event
     public function __construct($scrollId)
     {
         $this->scrollId = $scrollId;
+    }
+
+    /**
+     * Gets scrollId.
+     *
+     * @return int
+     * @codeCoverageIgnore
+     */
+    public function getScrollId()
+    {
+        return $this->scrollId;
     }
 }
