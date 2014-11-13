@@ -11,6 +11,7 @@
 
 namespace ONGR\RepoositoryCrawlerBundle\Tests\Unit\Command;
 
+use ONGR\ConnectionsBundle\Pipeline\PipelineFactory;
 use ONGR\RepositoryCrawlerBundle\Command\RepositoryCrawlerCommand;
 use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
 use ONGR\RepositoryCrawlerBundle\Tests\Fixtures\ResultsIteratorBuilder;
@@ -142,7 +143,13 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
         $output->expects($this->any())->method('isDecorated')->will($this->returnValue(true));
         $output->expects($this->any())->method('getFormatter')->will($this->returnValue($outputFormatter));
 
+        $dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
+
+        $pipelineFactory = new PipelineFactory();
+        $pipelineFactory->setDispatcher($dispatcher);
+
         $crawler = new Crawler();
+        $crawler->setPipelineFactory($pipelineFactory);
         $crawler->addContext($contextName, $context);
         $crawler->setOutput($output);
 

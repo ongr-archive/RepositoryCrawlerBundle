@@ -10,41 +10,28 @@
 
 namespace ONGR\RepositoryCrawlerBundle\Event;
 
-use ONGR\RepositoryCrawlerBundle\Crawler\CrawlerContextInterface;
 use ONGR\ConnectionsBundle\Pipeline\Event\ItemPipelineEvent;
 
 /**
  * Listens for processDocument event.
+ *
+ * @package ONGR\RepositoryCrawlerBundle\Event
  */
-class CrawlerProcessDocumentListener
+class CrawlerConsumeEventHandler
 {
-    /**
-     * @var CrawlerContextInterface context.
-     */
-    protected $context;
-
-    /**
-     * Constructor.
-     *
-     * @param CrawlerContextInterface $context
-     */
-    public function __construct(CrawlerContextInterface $context)
-    {
-        $this->context = $context;
-    }
-
     /**
      * Calls context->process.
      *
      * @param ItemPipelineEvent         $documentEvent
      */
-    public function processDocument(ItemPipelineEvent $documentEvent)
+    public function onConsume(ItemPipelineEvent $documentEvent)
     {
         /**
          * @var CrawlerPipelineContext $eventContext
          */
 
         $eventContext = $documentEvent->getContext();
+
         $context = $eventContext->getCrawlerContext();
 
         $context->processData($documentEvent->getItem());

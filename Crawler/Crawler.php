@@ -59,6 +59,7 @@ class Crawler
     public function setPipelineFactory(PipelineFactory $pipelineFactory)
     {
         $this->pipelineFactory = $pipelineFactory;
+        $this->pipelineFactory->setClassName('ONGR\ConnectionsBundle\Pipeline\Pipeline');
     }
 
     /**
@@ -68,7 +69,7 @@ class Crawler
      */
     public function setPipelineChunk()
     {
-        $this->pipelineChunk = $this->pipelineFactory->create('repository_crawler.chunkEvent');
+        $this->pipelineChunk = $this->pipelineFactory->create('ongr.repository_crawler.chunkEvent');
     }
 
     /**
@@ -159,7 +160,7 @@ class Crawler
         $this->pipelineChunk->setContext(new CrawlerChunkEvent($resultSet->getScrollId()));
         $this->pipelineChunk->execute();
 
-        $this->processData($context, $resultSet, $this->getProgressHelper($resultSet->count()));
+        $this->processData($contextService, $resultSet, $this->getProgressHelper($resultSet->count()));
 
         $contextService->finalize();
     }
@@ -181,8 +182,11 @@ class Crawler
             $progress = new ProgressBar($this->output, $count);
             $progress->start();
         } else {
+            // This is for backwards compatibility only.
+            // @codeCoverageIgnoreStart
             $progress = new ProgressHelper();
             $progress->start($this->output, $count);
+            // @codeCoverageIgnoreEnd
         }
 
         return $progress;
@@ -191,24 +195,21 @@ class Crawler
     /**
      * Iterates through result set and passes objects to crawler context service.
      *
-     * @param CrawlerContextInterface $context
-     * @param AbstractResultsIterator $resultSet
-     * @param ProgressHelper          $progress
+     * @param CrawlerContextInterface       $context
+     * @param AbstractResultsIterator       $resultSet
+     * @param ProgressHelper|ProgressBar    $progress
      */
     protected function processData(CrawlerContextInterface $context, AbstractResultsIterator $resultSet, $progress)
     {
         $pipelineContext = new CrawlerPipelineContext();
         $pipelineContext->setPipeContext($context, $resultSet);
 
-        $pipeline = $this->pipelineFactory->create(
-            'ongr.repository_crawler.processEvent',
-            [
-                'consumers' => ['ongr.pipeline.repository_crawler.crawler_process_document'],
-                'source' => ['ongr.pipeline.repository_crawler.crawler_source'],
-            ]
-        );
+        $pipeline = $this->pipelineFactory->create('ongr.repository_crawler.processEvent');
         $pipeline->setContext($pipelineContext);
         $pipeline->execute();
-        $progress->advance($resultSet->count());
+
+        if ($progress !== null) {
+            $progress->advance($resultSet->count());
+        }
     }
 }

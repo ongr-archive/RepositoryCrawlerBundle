@@ -11,4 +11,4 @@ parameters:
     locale: en
     secret: 'superdupersecretkey#pleasedonttellitanyone'
 
-    ongr.repository_crawler.crawler.class: ONGR\RepositoryCrawlerBundle\Crawler\Crawler
+    ongr.repository_crawler.crawler_source.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerSourceEventHandler
