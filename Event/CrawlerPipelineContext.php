@@ -60,5 +60,4 @@ class CrawlerPipelineContext
     {
         return $this->results;
     }
-
 }
