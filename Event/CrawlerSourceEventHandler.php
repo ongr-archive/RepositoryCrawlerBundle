@@ -16,15 +16,21 @@ use ONGR\ConnectionsBundle\Pipeline\Event\SourcePipelineEvent;
  *
  * @package ONGR\RepositoryCrawlerBundle\Event
  */
-class CrawlerSourceEventHandler {
+class CrawlerSourceEventHandler
+{
 
+    /**
+     * On source event - sets sources.
+     *
+     * @param SourcePipelineEvent $sourceEvent
+     */
     public function onSource(SourcePipelineEvent $sourceEvent)
     {
         /**
          * @var CrawlerPipelineContext $pipelineContext
          */
-        $pipelineContext=$sourceEvent->getContext();
+        $pipelineContext = $sourceEvent->getContext();
+
         $sourceEvent->setSources([$pipelineContext->getResults()]);
     }
-
-} 
+}

@@ -27,6 +27,7 @@ class CrawlerTest extends ElasticsearchTestCase
         $document1 = $this->getMockForAbstractClass('ONGR\ElasticsearchBundle\Document\DocumentInterface');
         $document2 = $this->getMockForAbstractClass('ONGR\ElasticsearchBundle\Document\DocumentInterface');
         $iterator = ResultsIteratorBuilder::getMock($this, [$document1, $document2]);
+        $iterator->expects($this->any())->method('count')->willReturn($this->returnValue(2));
 
         $manager = $this->getManager();
 
@@ -41,7 +42,7 @@ class CrawlerTest extends ElasticsearchTestCase
         $context->expects($this->once())->method('getSearch')->will($this->returnValue(new Search()));
         $context->expects($this->once())->method('finalize');
 
-        $crawler = new Crawler();
+        $crawler = $this->getContainer()->get('ongr.repository_crawler.crawler');
         $crawler->addContext('test_context', $context);
         $crawler->run('test_context');
     }
@@ -76,17 +77,17 @@ class CrawlerTest extends ElasticsearchTestCase
         $repository->expects($this->exactly(1))->method('scan')->will($this->returnValue($iterator));
 
         $context = $this->getMockForAbstractClass('ONGR\RepositoryCrawlerBundle\Crawler\CrawlerContextInterface');
-        // Test if processData() was called.
-        $context->expects($this->exactly(4))->method('processData')->with($document1);
-        $context->expects($this->exactly(2))->method('getRepository')->will($this->returnValue($repository));
-        $context->expects($this->once())->method('getSearch')->will($this->returnValue(new Search()));
-        $context->expects($this->exactly(2))->method('finalize');
+        $context->expects($this->any())->method('getRepository')->will($this->returnValue($repository));
+        $context->expects($this->any())->method('getSearch')->will($this->returnValue(new Search()));
+        $context->expects($this->any())->method('finalize');
+
 
         $dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
-        $dispatcher->expects($this->exactly(2))->method('dispatch')->with(
-            'ongr.pipeline.repository_crawler.chunkEvent.source',
+        $dispatcher->expects($this->exactly(12))->method('dispatch')->with(
+            $this->stringContains('ongr.pipeline.ongr.repository_crawler'),
             $this->anything()
         );
+        // Explanation: 12 = ((start, source, modify, consume, finish) + (crawlerChunkEvent))*2.
 
         $pipeline = $this->getContainer()->get('ongr_connections.pipeline_factory');
         $pipeline->setDispatcher($dispatcher);
