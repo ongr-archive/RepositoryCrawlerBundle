@@ -10,7 +10,8 @@ parameters:
 
     locale: en
     secret: 'superdupersecretkey#pleasedonttellitanyone'
-
-    ongr_repository_crawler.crawler_source.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerSourceEventHandler
+    ongr_repository_crawler.crawler.class: ONGR\RepositoryCrawlerBundle\Crawler\Crawler
+    ongr_repository_crawler.process_document.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerConsumer
+    ongr_repository_crawler.repository_source.repositoryname: override_me
     ongr_connections.pipeline_factory.class: ONGR\ConnectionsBundle\Pipeline\PipelineFactory
     ongr_connections.pipeline_factory.pipeline_class: \ONGR\ConnectionsBundle\Pipeline\Pipeline

@@ -29,19 +29,13 @@ class ONGRRepositoryCrawlerExtensionTest extends WebTestCase
                 '',
             ],
             [
-                'ongr_repository_crawler.process_document.class',
+                'ongr_connections.pipeline_factory.class',
                 'string',
                 true,
                 '',
             ],
             [
-                'ongr_repository_crawler.crawler_context.class',
-                'string',
-                true,
-                '',
-            ],
-            [
-                'ongr_repository_crawler.crawler_source.class',
+                'ongr_connections.pipeline_factory.pipeline_class',
                 'string',
                 true,
                 '',

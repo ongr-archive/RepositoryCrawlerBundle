@@ -11,15 +11,8 @@
 
 namespace ONGR\RepositoryCrawlerBundle\Crawler;
 
-use ONGR\RepositoryCrawlerBundle\Event\CrawlerChunkEvent;
 use ONGR\RepositoryCrawlerBundle\Event\CrawlerPipelineContext;
 use ONGR\ConnectionsBundle\Pipeline\PipelineFactory;
-use ONGR\ElasticsearchBundle\DSL\Search;
-use ONGR\ElasticsearchBundle\ORM\Repository;
-use ONGR\ElasticsearchBundle\Result\AbstractResultsIterator;
-use ONGR\ConnectionsBundle\Pipeline\Pipeline;
-use Symfony\Component\Console\Helper\ProgressHelper;
-use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -27,18 +20,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Crawler
 {
-    /**
-     * @var CrawlerContextInterface[]
-     */
-    protected $contexts;
-
-    /**
-     * Chunk pipeline.
-     *
-     * @var Pipeline
-     */
-    protected $pipelineChunk = null;
-
     /**
      * Pipeline factory.
      *
@@ -52,6 +33,18 @@ class Crawler
     protected $output;
 
     /**
+     * @var string
+     */
+    protected $eventNameInterfix = 'default';
+
+    /**
+     * Holds all the applicable consumer events.
+     *
+     * @var array
+     */
+    protected $consumeEventListeners;
+
+    /**
      * Pipeline factory setter.
      *
      * @param PipelineFactory $pipelineFactory
@@ -59,14 +52,6 @@ class Crawler
     public function setPipelineFactory(PipelineFactory $pipelineFactory)
     {
         $this->pipelineFactory = $pipelineFactory;
-    }
-
-    /**
-     * Sets pipeline for chunks.
-     */
-    public function setPipelineChunk()
-    {
-        $this->pipelineChunk = $this->pipelineFactory->create('ongr_repository_crawler.chunkEvent');
     }
 
     /**
@@ -80,127 +65,34 @@ class Crawler
     }
 
     /**
-     * Adds context service.
+     * Sets the event name interfix.
      *
-     * @param string                  $name
-     * @param CrawlerContextInterface $context
+     * @param string $eventNameInterfix
      */
-    public function addContext($name, CrawlerContextInterface $context)
+    public function setEventNameInterfix($eventNameInterfix)
     {
-        $this->contexts[$name] = $context;
+        $this->eventNameInterfix = $eventNameInterfix;
     }
 
     /**
-     * Returns context by name.
+     * Set registered consumer event listeners.
      *
-     * @param string $name
-     *
-     * @return CrawlerContextInterface
-     * @throws \RuntimeException
+     * @param array $listenerList
      */
-    protected function getContext($name)
+    public function setConsumeEventListeners($listenerList)
     {
-        if (!isset($this->contexts[$name])) {
-            throw new \RuntimeException("Context with name '{$name}' does not exist.");
-        }
-
-        return $this->contexts[$name];
+        $this->consumeEventListeners = $listenerList;
     }
 
     /**
      * Gets documents and passes it to crawler context service.
-     *
-     * @param string $context
      */
-    public function run($context)
+    public function run()
     {
-        $contextService = $this->getContext($context);
-        $search = $contextService->getSearch();
-
-        $resultSet = $contextService->getRepository()->execute($search, Repository::RESULTS_OBJECT);
-
-        if ($resultSet !== null) {
-            $this->processData($contextService, $resultSet, $this->getProgressHelper($resultSet->count()));
-        }
-        $contextService->finalize();
-    }
-
-    /**
-     * Gets chunk of documents and passes it to crawler context service.
-     *
-     * @param string $context
-     * @param string $scrollId
-     */
-    public function runAsync($context, $scrollId = null)
-    {
-        $contextService = $this->getContext($context);
-
-        if ($scrollId === null) {
-            $resultSet = $contextService->getRepository()->execute(
-                $contextService->getSearch(),
-                Repository::RESULTS_OBJECT
-            );
-        } else {
-            $resultSet = $contextService->getRepository()->scan(
-                $scrollId,
-                Search::SCROLL_DURATION,
-                Repository::RESULTS_OBJECT
-            );
-        }
-
-        $this->pipelineChunk->setContext(new CrawlerChunkEvent($resultSet->getScrollId()));
-        $this->pipelineChunk->execute();
-
-        $this->processData($contextService, $resultSet, $this->getProgressHelper($resultSet->count()));
-
-        $contextService->finalize();
-    }
-
-    /**
-     * Creates and returns instance of progress helper.
-     *
-     * @param int $count
-     *
-     * @return null|ProgressHelper
-     */
-    protected function getProgressHelper($count)
-    {
-        if ($this->output === null) {
-            return null;
-        }
-
-        if (class_exists('\Symfony\Component\Console\Helper\ProgressBar')) {
-            $progress = new ProgressBar($this->output, $count);
-            $progress->start();
-        } else {
-            // This is for backwards compatibility only.
-            // @codeCoverageIgnoreStart
-            $progress = new ProgressHelper();
-            $progress->start($this->output, $count);
-            // @codeCoverageIgnoreEnd
-        }
-
-        return $progress;
-    }
-
-    /**
-     * Iterates through result set and passes objects to crawler context service.
-     *
-     * @param CrawlerContextInterface    $context
-     * @param AbstractResultsIterator    $resultSet
-     * @param ProgressHelper|ProgressBar $progress
-     */
-    protected function processData(CrawlerContextInterface $context, AbstractResultsIterator $resultSet, $progress)
-    {
+        $pipeline = $this->pipelineFactory->create('repository_crawler.' . $this->eventNameInterfix);
         $pipelineContext = new CrawlerPipelineContext();
-        $pipelineContext->setPipeContext($context, $resultSet);
-
-        $pipeline = $this->pipelineFactory->create('ongr_repository_crawler');
+        $pipelineContext->setResultProcessors($pipeline->getName(), $this->consumeEventListeners);
         $pipeline->setContext($pipelineContext);
         $pipeline->execute();
-
-        if ($progress !== null) {
-            $progress->advance($resultSet->count());
-        }
     }
 }

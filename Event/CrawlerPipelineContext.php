@@ -10,8 +10,9 @@
 
 namespace ONGR\RepositoryCrawlerBundle\Event;
 
-use ONGR\RepositoryCrawlerBundle\Crawler\CrawlerContextInterface;
-use ONGR\ElasticsearchBundle\Result\AbstractResultsIterator;
+use Symfony\Component\Console\Helper\ProgressHelper;
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Holds pipeline context for crawler.
@@ -19,48 +20,121 @@ use ONGR\ElasticsearchBundle\Result\AbstractResultsIterator;
 class CrawlerPipelineContext
 {
     /**
-     * Crawler context.
-     *
-     * @var CrawlerContextInterface
+     * @var OutputInterface
      */
-    protected $context;
+    protected $output;
 
     /**
-     * Results.
+     * Result count.
      *
-     * @var AbstractResultsIterator
+     * @var int
      */
-    protected $results;
+    protected $resultCount = 0;
 
     /**
-     * Sets pipeline context for crawler.
+     * Number of events registered as processors (consume event listeners).
      *
-     * @param CrawlerContextInterface $context
-     * @param AbstractResultsIterator $results
+     * @var int
      */
-    public function setPipeContext(CrawlerContextInterface $context, AbstractResultsIterator $results)
+    protected $resultProcessorCount = 0;
+
+    /**
+     * @var string
+     */
+    protected $eventNameInterfix;
+
+    /**
+     * Progress helper.
+     *
+     * @var ProgressHelper
+     */
+    protected $progress;
+
+    /**
+     * Creates and returns instance of progress helper.
+     *
+     * @param int $count
+     *
+     * @return null|ProgressHelper
+     */
+    protected function getProgressHelper($count)
     {
-        $this->context = $context;
-        $this->results = $results;
+        if (class_exists('\Symfony\Component\Console\Helper\ProgressBar')) {
+            $progress = new ProgressBar($this->output, $count);
+            $progress->start();
+        } else {
+            // This is for backwards compatibility only.
+            // @codeCoverageIgnoreStart
+            $progress = new ProgressHelper();
+            $progress->start($this->output, $count);
+            // @codeCoverageIgnoreEnd
+        }
+
+        return $progress;
     }
 
     /**
-     * Returns the CrawlerContext part fo the crawler pipeline context.
-     *
-     * @return CrawlerContextInterface
+     * @param null|OutputInterface $output
      */
-    public function getCrawlerContext()
+    public function __construct($output = null)
     {
-        return $this->context;
+        $this->output = $output;
     }
 
     /**
-     * Returns the results part of crawler pipeline context.
+     * Adds results to totals counter.
      *
-     * @return AbstractResultsIterator
+     * @param int $resultCount
      */
-    public function getResults()
+    public function addResults($resultCount)
     {
-        return $this->results;
+        $this->resultCount += $resultCount;
+    }
+
+    /**
+     * Returns the results count of crawler pipeline context.
+     *
+     * @return int
+     */
+    public function getResultCount()
+    {
+        return $this->resultCount;
+    }
+
+    /**
+     * Outputs progress to console, if output interface is present.
+     */
+    public function advanceProgress()
+    {
+        if ($this->output == null) {
+            return;
+        }
+
+        if ($this->progress == null) {
+            $this->progress = $this->getProgressHelper($this->getResultCount() * $this->resultProcessorCount);
+        }
+
+        $this->progress->advance();
+    }
+
+    /**
+     * Sets result processor count (for progress).
+     *
+     * @param string $eventNameInterfix
+     * @param array  $processors
+     */
+    public function setResultProcessors($eventNameInterfix, $processors)
+    {
+        $this->eventNameInterfix = $eventNameInterfix;
+        if (is_array($processors) && count($processors) > 0) {
+            array_walk(
+                $processors,
+                function ($val) {
+                    if (strpos($val, $this->eventNameInterfix) == false) {
+                        $this->resultProcessorCount++;
+                    }
+                }
+            );
+        }
     }
 }

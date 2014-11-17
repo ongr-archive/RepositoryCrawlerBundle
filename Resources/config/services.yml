@@ -1,9 +1,8 @@
 parameters:
 
   ongr_repository_crawler.crawler.class: ONGR\RepositoryCrawlerBundle\Crawler\Crawler
-  ongr_repository_crawler.process_document.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerConsumeEventHandler
-  ongr_repository_crawler.crawler_context.class: ONGR\RepositoryCrawlerBundle\Crawler\RepositoryCrawlerContext
-  ongr_repository_crawler.crawler_source.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerSourceEventHandler
+  ongr_repository_crawler.process_document.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerConsumer
+  ongr_repository_crawler.repository_source.repositoryname: override_me
   ongr_connections.pipeline_factory.class: ONGR\ConnectionsBundle\Pipeline\PipelineFactory
   ongr_connections.pipeline_factory.pipeline_class: \ONGR\ConnectionsBundle\Pipeline\Pipeline
 
@@ -14,7 +13,6 @@ services:
       class: %ongr_repository_crawler.crawler.class%
       calls:
           - [setPipelineFactory, [ @ongr_connections.pipeline_factory ] ]
-      scope: container
 
   ongr_connections.pipeline_factory:
       class: %ongr_connections.pipeline_factory.class%
@@ -22,15 +20,15 @@ services:
           - [ setDispatcher, [ @event_dispatcher ] ]
           - [ setClassName, [ %ongr_connections.pipeline_factory.pipeline_class% ] ]
 
-  ongr.repository_crawler.crawler_context:
-      class: %ongr_repository_crawler.crawler_context.class%
-
   ongr.pipeline.repository_crawler.crawler_process_document:
       class: %ongr_repository_crawler.process_document.class%
       tags:
-          - { name: kernel.event_listener, event: 'ongr.pipeline.ongr_repository_crawler.consume', method: 'onConsume' }
+          - { name: kernel.event_listener, event: ongr.pipeline.repository_crawler.default.consume, method: onConsume }
 
-  ongr.pipeline.repository_crawler.crawler_source:
-      class: %ongr_repository_crawler.crawler_source.class%
+  ongr.pipeline.repository_crawler.repository_source:
+      class: ONGR\RepositoryCrawlerBundle\Event\CrawlerRepositorySource
+      arguments:
+          - @es.manager.default
+          - %ongr_repository_crawler.repository_source.repositoryname%
       tags:
-          - { name: kernel.event_listener, event: 'ongr.pipeline.ongr_repository_crawler.source', method: 'onSource' }
+          - { name: kernel.event_listener, event: ongr.pipeline.repository_crawler.default.source, method: onSource }

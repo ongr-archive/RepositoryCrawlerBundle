@@ -11,12 +11,23 @@
 namespace ONGR\RepositoryCrawlerBundle\Event;
 
 use ONGR\ConnectionsBundle\Pipeline\Event\ItemPipelineEvent;
+use ONGR\ElasticsearchBundle\Document\DocumentInterface;
 
 /**
- * Listens for processDocument event.
+ * Abstract class for event listener.
  */
-class CrawlerConsumeEventHandler
+abstract class AbstractCrawlerConsumer
 {
+    /**
+     * Processes document.
+     *
+     * @param DocumentInterface $document
+     */
+    protected function processData(DocumentInterface $document)
+    {
+        // To be implemented by the end user.
+    }
+
     /**
      * Calls context->process.
      *
@@ -27,8 +38,9 @@ class CrawlerConsumeEventHandler
         /** @var CrawlerPipelineContext $eventContext */
         $eventContext = $documentEvent->getContext();
 
-        $context = $eventContext->getCrawlerContext();
+        $this->processData($documentEvent->getItem());
 
-        $context->processData($documentEvent->getItem());
+        $eventContext->advanceProgress();
     }
+
 }

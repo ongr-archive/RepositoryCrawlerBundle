@@ -13,7 +13,6 @@ namespace ONGR\RepositoryCrawlerBundle\Command;
 
 use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
 use ONGR\ElasticsearchBundle\Command\AbstractElasticsearchCommand;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -33,9 +32,14 @@ class RepositoryCrawlerCommand extends AbstractElasticsearchCommand
         $this
             ->setName('ongr:repository-crawler:crawl')
             ->setDescription('Repository crawler')
-            ->addArgument('context', InputArgument::REQUIRED, 'Crawler Context name')
-            ->addOption('scroll-id', null, InputOption::VALUE_REQUIRED, 'Result scroll ID')
-            ->addOption('async', null, InputOption::VALUE_NONE, 'Run crawling in asynchronous mode using celery');
+            ->addOption(
+                'use-event-name',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'use ongr.pipeline.repository_crawler.{event-name}.* instead of
+                ongr.pipeline.repository_crawler.default.*',
+                null
+            );
     }
 
     /**
@@ -48,12 +52,13 @@ class RepositoryCrawlerCommand extends AbstractElasticsearchCommand
         /** @var Crawler $repositoryCrawler */
         $repositoryCrawler = $this->getContainer()->get('ongr.repository_crawler.crawler');
         $repositoryCrawler->setOutput($output);
+        $eventName = $input->getOption('use-event-name');
 
-        if ($input->getOption('async')) {
-            $repositoryCrawler->runAsync($input->getArgument('context'), $input->getOption('scroll-id'));
-        } else {
-            $repositoryCrawler->run($input->getArgument('context'));
+        if ($eventName != null) {
+            $repositoryCrawler->setEventNameInterfix($eventName);
         }
+
+        $repositoryCrawler->run($this->getContainer());
         $output->writeln('');
         $output->writeln(sprintf('<info>Job finished in %.2f s</info>', microtime(true) - $start));
         $output->writeln(sprintf('<info>Memory usage: %.2f MB</info>', memory_get_peak_usage() >> 20));
