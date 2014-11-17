@@ -42,5 +42,4 @@ abstract class AbstractCrawlerConsumer
 
         $eventContext->advanceProgress();
     }
-
 }
