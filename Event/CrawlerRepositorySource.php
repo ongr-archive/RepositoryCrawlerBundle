@@ -14,6 +14,7 @@ use ONGR\ElasticsearchBundle\ORM\Repository;
 use ONGR\ElasticsearchBundle\ORM\Manager;
 use ONGR\ElasticsearchBundle\DSL\Search;
 use ONGR\ConnectionsBundle\Pipeline\Event\SourcePipelineEvent;
+use Symfony\Component\Config\Definition\Exception\Exception;
 
 /**
  * Provides data from Elasticsearch repository.
@@ -58,6 +59,7 @@ class CrawlerRepositorySource extends AbstractCrawlerSource
     public function onSource(SourcePipelineEvent $sourceEvent)
     {
         $results = $this->repository->execute($this->getSearch(), Repository::RESULTS_OBJECT);
+
         $this->registerSource($sourceEvent, $results);
     }
 }

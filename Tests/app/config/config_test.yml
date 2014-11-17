@@ -52,7 +52,7 @@ ongr_elasticsearch:
             index_name: ongr-elasticsearch-bundle-test
             settings:
                 refresh_interval: -1
-                number_of_replicas: 0
+                number_of_replicas: 1
         bar:
             hosts:
                 - { host: 127.0.0.1:9200 }

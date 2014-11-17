@@ -20,7 +20,7 @@ class CrawlerTest extends ElasticsearchTestCase
      */
     public function testRun()
     {
-        $crawler = $this->getContainer()->get('ongr.repository_crawler.crawler');
-        $crawler->run();
+       $crawler = $this->getContainer()->get('ongr.repository_crawler.crawler');
+       $crawler->run();
     }
 }
