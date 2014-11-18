@@ -35,9 +35,10 @@ abstract class AbstractCrawlerSource
 
         if (is_array($results)) {
             // CrawlerRepositorySource always returns DocumentIterator, thus this is not tested here.
-            // @codeCoverageIgnoreStart .
+
+            // @codeCoverageIgnoreStart
             $pipelineContext->addResults(count($results));
-            // @codeCoverageIgnoreEnd .
+            // @codeCoverageIgnoreEnd
         } elseif (($results instanceof DocumentIterator)) {
             $pipelineContext->addResults($results->count());
         }

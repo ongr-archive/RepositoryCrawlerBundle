@@ -52,10 +52,11 @@ class CrawlerPipelineContext
             $progress->start();
         } else {
             // This is for backwards compatibility only.
-            // @codeCoverageIgnoreStart .
+
+            // @codeCoverageIgnoreStart
             $progress = new ProgressHelper();
             $progress->start($this->output, $count);
-            // @codeCoverageIgnoreEnd .
+            // @codeCoverageIgnoreEnd
         }
 
         return $progress;
