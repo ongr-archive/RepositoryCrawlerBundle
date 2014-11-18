@@ -16,6 +16,7 @@ use ONGR\ConnectionsBundle\Pipeline\Event\SourcePipelineEvent;
 use ONGR\ConnectionsBundle\Pipeline\PipelineFactory;
 use ONGR\RepositoryCrawlerBundle\Command\RepositoryCrawlerCommand;
 use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
+use ONGR\RepositoryCrawlerBundle\Event\CrawlerConsumer;
 use ONGR\RepositoryCrawlerBundle\Event\CrawlerPipelineContext;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -64,15 +65,17 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
 
         $source = $this->getMockForAbstractClass('ONGR\RepositoryCrawlerBundle\Event\AbstractCrawlerSource');
 
-        $consumer = $this->getMockForAbstractClass('ONGR\RepositoryCrawlerBundle\Event\AbstractCrawlerConsumer');
+        $modifier = $this->getMockForAbstractClass('ONGR\RepositoryCrawlerBundle\Event\AbstractCrawlerModifier');
 
         $container = new ContainerBuilder();
+
+        $consumer = new CrawlerConsumer();
 
         $command = new RepositoryCrawlerCommand();
         $command->setContainer($container);
 
         $input = $this->getMock('Symfony\Component\Console\Input\InputInterface');
-        $input->expects($this->once())->method('getOption')->with('use-event-name')->will(
+        $input->expects($this->once())->method('getOption')->with('event-name')->will(
             $this->returnValue('default')
         );
 
@@ -99,13 +102,15 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
                 ['ongr.pipeline.repository_crawler.default.source', $this->anything()],
                 ['ongr.pipeline.repository_crawler.default.start', $this->anything()],
                 ['ongr.pipeline.repository_crawler.default.finish', $this->anything()],
-                ['ongr.pipeline.repository_crawler.default.consume', $this->anything()]
+                ['ongr.pipeline.repository_crawler.default.consume', $this->anything()],
+                ['ongr.pipeline.repository_crawler.default.modify', $this->anything()]
             )
             ->willReturnOnConsecutiveCalls(
                 ($this->returnValue($source->onSource(new SourcePipelineEvent()))),
                 ($this->returnValue(null)),
                 ($this->returnValue(null)),
-                ($this->returnValue($consumer->onConsume($itemEvent)))
+                ($this->returnValue($modifier->onModify($itemEvent))),
+                ($this->returnValue($consumer->onConsume($itemEvent)===null))
             );
 
         $pipelineFactory = new PipelineFactory();

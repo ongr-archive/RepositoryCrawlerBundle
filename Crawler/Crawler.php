@@ -35,7 +35,7 @@ class Crawler
     /**
      * @var string
      */
-    protected $eventNameInterfix = 'default';
+    protected $target = 'default';
 
     /**
      * Holds all the applicable consumer events.
@@ -67,21 +67,11 @@ class Crawler
     /**
      * Sets the event name interfix.
      *
-     * @param string $eventNameInterfix
+     * @param string $target
      */
-    public function setEventNameInterfix($eventNameInterfix)
+    public function setTarget($target)
     {
-        $this->eventNameInterfix = $eventNameInterfix;
-    }
-
-    /**
-     * Set registered consumer event listeners.
-     *
-     * @param array $listenerList
-     */
-    public function setConsumeEventListeners($listenerList)
-    {
-        $this->consumeEventListeners = $listenerList;
+        $this->$target = $target;
     }
 
     /**
@@ -89,9 +79,8 @@ class Crawler
      */
     public function run()
     {
-        $pipeline = $this->pipelineFactory->create('repository_crawler.' . $this->eventNameInterfix);
+        $pipeline = $this->pipelineFactory->create('repository_crawler.' . $this->target);
         $pipelineContext = new CrawlerPipelineContext();
-        $pipelineContext->setResultProcessors($pipeline->getName(), $this->consumeEventListeners);
         $pipeline->setContext($pipelineContext);
         $pipeline->execute();
     }

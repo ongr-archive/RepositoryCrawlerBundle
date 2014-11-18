@@ -57,7 +57,6 @@ class CrawlerRepositorySource extends AbstractCrawlerSource
     public function onSource(SourcePipelineEvent $sourceEvent)
     {
         $results = $this->repository->execute($this->getSearch(), Repository::RESULTS_OBJECT);
-
         $this->registerSource($sourceEvent, $results);
     }
 }

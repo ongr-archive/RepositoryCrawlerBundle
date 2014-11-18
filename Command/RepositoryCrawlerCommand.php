@@ -33,11 +33,10 @@ class RepositoryCrawlerCommand extends AbstractElasticsearchCommand
             ->setName('ongr:repository-crawler:crawl')
             ->setDescription('Repository crawler')
             ->addOption(
-                'use-event-name',
+                'event-name',
                 null,
                 InputOption::VALUE_OPTIONAL,
-                'use ongr.pipeline.repository_crawler.{event-name}.* instead of
-                ongr.pipeline.repository_crawler.default.*',
+                'Set specific pipeline event name (see documentation for details)',
                 null
             );
     }
@@ -52,10 +51,10 @@ class RepositoryCrawlerCommand extends AbstractElasticsearchCommand
         /** @var Crawler $repositoryCrawler */
         $repositoryCrawler = $this->getContainer()->get('ongr.repository_crawler.crawler');
         $repositoryCrawler->setOutput($output);
-        $eventName = $input->getOption('use-event-name');
+        $eventName = $input->getOption('event-name');
 
         if ($eventName != null) {
-            $repositoryCrawler->setEventNameInterfix($eventName);
+            $repositoryCrawler->setTarget($eventName);
         }
 
         $repositoryCrawler->run($this->getContainer());

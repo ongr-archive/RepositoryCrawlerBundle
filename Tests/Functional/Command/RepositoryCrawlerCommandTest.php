@@ -64,7 +64,7 @@ class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
         $kernel = self::createClient()->getKernel();
 
         /** @var Repository $repository */
-        $repository = $this->getManager()->getRepository('AcmeTestBundle:Product');
+        $repository = $this->getManager()->getRepository('ONGRTestingBundle:Product');
 
         $expectedProducts = $this->getDocumentsData($repository);
 
@@ -89,6 +89,5 @@ class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
         }
 
         $this->assertEquals($expectedProducts, $consumer->documentCollection);
-        $this->getManager()->refresh();
     }
 }

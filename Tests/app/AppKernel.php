@@ -28,7 +28,7 @@ class AppKernel extends Kernel
             new Fox\UtilsBundle\FoxUtilsBundle(),
             new ONGR\ConnectionsBundle\ONGRConnectionsBundle(),
             new ONGR\RepositoryCrawlerBundle\ONGRRepositoryCrawlerBundle(),
-            new ONGR\ElasticsearchBundle\Tests\app\fixture\Acme\TestBundle\AcmeTestBundle(),
+            new ONGR\TestingBundle\ONGRTestingBundle(),
         ];
     }
 

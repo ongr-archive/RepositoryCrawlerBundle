@@ -1,7 +1,8 @@
 parameters:
 
   ongr_repository_crawler.crawler.class: ONGR\RepositoryCrawlerBundle\Crawler\Crawler
-  ongr_repository_crawler.process_document.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerConsumer
+  ongr_repository_crawler.process_document.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerModifier
+  ongr_repository_crawler.end_iteration.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerConsumer
   ongr_repository_crawler.repository_source.repositoryname: override_me
   ongr_connections.pipeline_factory.class: ONGR\ConnectionsBundle\Pipeline\PipelineFactory
   ongr_connections.pipeline_factory.pipeline_class: \ONGR\ConnectionsBundle\Pipeline\Pipeline
@@ -22,6 +23,11 @@ services:
 
   ongr.pipeline.repository_crawler.crawler_process_document:
       class: %ongr_repository_crawler.process_document.class%
+      tags:
+          - { name: kernel.event_listener, event: ongr.pipeline.repository_crawler.default.modify, method: onModify }
+
+  ongr.pipeline.repository_crawler.crawler_end_iteration:
+      class: %ongr_repository_crawler.end_iteration.class%
       tags:
           - { name: kernel.event_listener, event: ongr.pipeline.repository_crawler.default.consume, method: onConsume }
 

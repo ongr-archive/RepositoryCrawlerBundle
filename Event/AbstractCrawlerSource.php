@@ -48,7 +48,5 @@ abstract class AbstractCrawlerSource
      *
      * @param SourcePipelineEvent $sourceEvent
      */
-    public function onSource(SourcePipelineEvent $sourceEvent)
-    {
-    }
+    abstract public function onSource(SourcePipelineEvent $sourceEvent);
 }

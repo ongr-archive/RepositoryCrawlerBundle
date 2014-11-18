@@ -32,18 +32,6 @@ class CrawlerPipelineContext
     protected $resultCount = 0;
 
     /**
-     * Number of events registered as processors (consume event listeners).
-     *
-     * @var int
-     */
-    protected $resultProcessorCount = 0;
-
-    /**
-     * @var string
-     */
-    protected $eventNameInterfix;
-
-    /**
      * Progress helper.
      *
      * @var ProgressHelper
@@ -106,35 +94,14 @@ class CrawlerPipelineContext
      */
     public function advanceProgress()
     {
-        if ($this->output == null) {
+        if ($this->output === null) {
             return;
         }
 
-        if ($this->progress == null) {
-            $this->progress = $this->getProgressHelper($this->getResultCount() * $this->resultProcessorCount);
+        if ($this->progress === null) {
+            $this->progress = $this->getProgressHelper($this->getResultCount());
         }
 
         $this->progress->advance();
-    }
-
-    /**
-     * Sets result processor count (for progress).
-     *
-     * @param string $eventNameInterfix
-     * @param array  $processors
-     */
-    public function setResultProcessors($eventNameInterfix, $processors)
-    {
-        $this->eventNameInterfix = $eventNameInterfix;
-        if (is_array($processors) && count($processors) > 0) {
-            array_walk(
-                $processors,
-                function ($val) {
-                    if (strpos($val, $this->eventNameInterfix) == false) {
-                        $this->resultProcessorCount++;
-                    }
-                }
-            );
-        }
     }
 }

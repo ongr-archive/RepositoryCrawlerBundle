@@ -16,30 +16,22 @@ use ONGR\ElasticsearchBundle\Document\DocumentInterface;
 /**
  * Abstract class for event listener.
  */
-abstract class AbstractCrawlerConsumer
+abstract class AbstractCrawlerModifier
 {
     /**
      * Processes document.
      *
      * @param DocumentInterface $document
      */
-    protected function processData(DocumentInterface $document)
-    {
-        // To be implemented by the end user.
-    }
+    abstract protected function processData(DocumentInterface $document);
 
     /**
      * Calls context->process.
      *
      * @param ItemPipelineEvent $documentEvent
      */
-    public function onConsume(ItemPipelineEvent $documentEvent)
+    public function onModify(ItemPipelineEvent $documentEvent)
     {
-        /** @var CrawlerPipelineContext $eventContext */
-        $eventContext = $documentEvent->getContext();
-
         $this->processData($documentEvent->getItem());
-
-        $eventContext->advanceProgress();
     }
 }

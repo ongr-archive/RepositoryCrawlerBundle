@@ -12,14 +12,14 @@
 namespace ONGR\RepositoryCrawlerBundle\Tests\Fixtures;
 
 use ONGR\ElasticsearchBundle\Document\DocumentInterface;
-use ONGR\RepositoryCrawlerBundle\Event\AbstractCrawlerConsumer;
+use ONGR\RepositoryCrawlerBundle\Event\AbstractCrawlerModifier;
 
 /**
  * Class TestDocumentProcessor - you know, for tests.
  *
  * @package ONGR\RepositoryCrawlerBundle\Tests
  */
-class TestDocumentProcessor extends AbstractCrawlerConsumer
+class TestDocumentProcessor extends AbstractCrawlerModifier
 {
     /**
      * Stores returned documents.
