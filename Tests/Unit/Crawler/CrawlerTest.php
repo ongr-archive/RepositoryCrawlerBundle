@@ -21,7 +21,7 @@ class CrawlerTest extends ElasticsearchTestCase
     public function testRun()
     {
         $crawler = $this->getContainer()->get('ongr.repository_crawler.crawler');
-        // Temporary workaround for ESB issue #34 (https://github.com/ongr-io/ElasticsearchBundle/issues/34)
+        // Temporary workaround for ESB issue #34 (https://github.com/ongr-io/ElasticsearchBundle/issues/34).
         usleep(50000);
         $crawler->run();
     }
