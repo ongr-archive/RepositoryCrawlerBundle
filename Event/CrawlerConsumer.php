@@ -13,7 +13,6 @@ namespace ONGR\RepositoryCrawlerBundle\Event;
 use ONGR\ConnectionsBundle\Pipeline\Event\ItemPipelineEvent;
 
 class CrawlerConsumer {
-
     /**
      * Calls context->advanceProgress.
      *
@@ -26,4 +25,4 @@ class CrawlerConsumer {
 
         $eventContext->advanceProgress();
     }
-} 
+}
