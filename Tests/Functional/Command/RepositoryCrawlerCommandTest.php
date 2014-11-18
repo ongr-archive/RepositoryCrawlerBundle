@@ -89,5 +89,6 @@ class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
         }
 
         $this->assertEquals($expectedProducts, $consumer->documentCollection);
+        $this->getManager()->refresh();
     }
 }
