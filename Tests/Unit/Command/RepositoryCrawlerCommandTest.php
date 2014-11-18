@@ -11,10 +11,13 @@
 
 namespace ONGR\RepoositoryCrawlerBundle\Tests\Unit\Command;
 
+use ONGR\ConnectionsBundle\Pipeline\Event\ItemPipelineEvent;
+use ONGR\ConnectionsBundle\Pipeline\Event\SourcePipelineEvent;
+use ONGR\ConnectionsBundle\Pipeline\PipelineFactory;
 use ONGR\RepositoryCrawlerBundle\Command\RepositoryCrawlerCommand;
 use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
-use ONGR\RepositoryCrawlerBundle\Tests\Fixtures\ResultsIteratorBuilder;
-use ONGR\ElasticsearchBundle\DSL\Search;
+use ONGR\RepositoryCrawlerBundle\Event\CrawlerConsumer;
+use ONGR\RepositoryCrawlerBundle\Event\CrawlerPipelineContext;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -26,15 +29,13 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function testCommand()
     {
-        $contextName = 'test_context';
-
         /** @var Crawler|\PHPUnit_Framework_MockObject_MockObject $crawler */
         $crawler = $this->getMockBuilder('ONGR\RepositoryCrawlerBundle\Crawler\Crawler')
             ->disableOriginalConstructor()
             ->setMethods(['run'])
             ->getMock();
 
-        $crawler->expects($this->once())->method('run')->with($contextName);
+        $crawler->expects($this->once())->method('run')->will($this->returnValue(null));
 
         $container = new ContainerBuilder();
         $container->set('ongr.repository_crawler.crawler', $crawler);
@@ -51,53 +52,8 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(
             [
                 'command' => $commandForTesting->getName(),
-                'context' => $contextName,
             ]
         );
-    }
-
-    /**
-     * Test ongr:repository-crawler:crawl behavior in case of asynchronous processing.
-     */
-    public function testCommandAsync()
-    {
-        $contextName = 'test_context';
-        $scrollId = 'test_scroll_id';
-
-        $container = new ContainerBuilder();
-
-        $command = new RepositoryCrawlerCommand();
-        $command->setContainer($container);
-
-        $input = $this->getMock('Symfony\Component\Console\Input\InputInterface');
-        $output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
-
-        $input->expects($this->once())->method('getArgument')->with('context')->will(
-            $this->returnValue($contextName)
-        );
-
-        $input->expects($this->any())->method('getOption')->will(
-            $this->returnCallback(
-                function ($argument) use ($scrollId) {
-                    if ($argument === 'async') {
-                        return true;
-                    }
-
-                    return $argument === 'scroll-id' ? $scrollId : null;
-                }
-            )
-        );
-
-        $crawler = $this->getMockBuilder('ONGR\RepositoryCrawlerBundle\Crawler\Crawler')
-            ->disableOriginalConstructor()
-            ->setMethods(['runAsync'])
-            ->getMock();
-
-        $crawler->expects($this->once())->method('runAsync')->with($contextName, $scrollId);
-
-        $container->set('ongr.repository_crawler.crawler', $crawler);
-
-        $command->run($input, $output);
     }
 
     /**
@@ -106,30 +62,22 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
     public function testCommandProgress()
     {
         $document1 = $this->getMockForAbstractClass('ONGR\ElasticsearchBundle\Document\DocumentInterface');
-        $document2 = $this->getMockForAbstractClass('ONGR\ElasticsearchBundle\Document\DocumentInterface');
 
-        $iterator = ResultsIteratorBuilder::getMock($this, [$document1, $document2]);
+        $source = $this->getMockForAbstractClass('ONGR\RepositoryCrawlerBundle\Event\AbstractCrawlerSource');
 
-        $repository = $this->getMockBuilder('ONGR\ElasticsearchBundle\ORM\Repository')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $repository->expects($this->once())->method('execute')->will($this->returnValue($iterator));
+        $modifier = $this->getMockForAbstractClass('ONGR\RepositoryCrawlerBundle\Event\AbstractCrawlerModifier');
 
-        $context = $this->getMock('ONGR\RepositoryCrawlerBundle\Crawler\CrawlerContextInterface');
-        $context->expects($this->once())->method('getRepository')->will($this->returnValue($repository));
-        $context->expects($this->once())->method('getSearch')->will($this->returnValue(new Search()));
-
-        $contextName = 'test_context';
         $container = new ContainerBuilder();
+
+        $consumer = new CrawlerConsumer();
 
         $command = new RepositoryCrawlerCommand();
         $command->setContainer($container);
 
         $input = $this->getMock('Symfony\Component\Console\Input\InputInterface');
-        $input->expects($this->once())->method('getArgument')->with('context')->will(
-            $this->returnValue($contextName)
+        $input->expects($this->once())->method('getOption')->with('event-name')->will(
+            $this->returnValue('default')
         );
-        $input->expects($this->any())->method('getOption')->will($this->returnValue(null));
 
         $writes = 0;
         $callback = function () use (&$writes) {
@@ -142,8 +90,36 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
         $output->expects($this->any())->method('isDecorated')->will($this->returnValue(true));
         $output->expects($this->any())->method('getFormatter')->will($this->returnValue($outputFormatter));
 
+        $itemEvent = new ItemPipelineEvent($document1);
+        $context = new CrawlerPipelineContext($output);
+        $itemEvent->setContext($context);
+
+        $dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
+        $dispatcher
+            ->expects($this->exactly(3))
+            ->method('dispatch')
+            ->withConsecutive(
+                ['ongr.pipeline.repository_crawler.default.source', $this->anything()],
+                ['ongr.pipeline.repository_crawler.default.start', $this->anything()],
+                ['ongr.pipeline.repository_crawler.default.finish', $this->anything()],
+                ['ongr.pipeline.repository_crawler.default.consume', $this->anything()],
+                ['ongr.pipeline.repository_crawler.default.modify', $this->anything()]
+            )
+            ->willReturnOnConsecutiveCalls(
+                ($this->returnValue($source->onSource(new SourcePipelineEvent()))),
+                ($this->returnValue(null)),
+                ($this->returnValue(null)),
+                ($this->returnValue($modifier->onModify($itemEvent))),
+                ($this->returnValue($consumer->onConsume($itemEvent) === null))
+            );
+
+        $pipelineFactory = new PipelineFactory();
+
+        $pipelineFactory->setClassName('\ONGR\ConnectionsBundle\Pipeline\Pipeline');
+        $pipelineFactory->setDispatcher($dispatcher);
+
         $crawler = new Crawler();
-        $crawler->addContext($contextName, $context);
+        $crawler->setPipelineFactory($pipelineFactory);
         $crawler->setOutput($output);
 
         $container->set('ongr.repository_crawler.crawler', $crawler);

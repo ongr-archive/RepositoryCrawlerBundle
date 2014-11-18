@@ -12,13 +12,10 @@
 namespace ONGR\RepositoryCrawlerBundle\Tests\Functional\Command;
 
 use ONGR\RepositoryCrawlerBundle\Command\RepositoryCrawlerCommand;
-use ONGR\RepositoryCrawlerBundle\Tests\Fixtures\TestDocumentProcessor;
-use ONGR\RepositoryCrawlerBundle\Tests\Fixtures\TestCrawlerContext;
-use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
 use ONGR\ElasticsearchBundle\ORM\Repository;
 use ONGR\ElasticsearchBundle\Test\ElasticsearchTestCase;
 use ONGR\ConnectionsBundle\Tests\Model\ProductModel;
-
+use ONGR\RepositoryCrawlerBundle\Tests\Fixtures\TestDocumentProcessor;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -53,8 +50,10 @@ class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
         $this->getManager()->persist($document2);
         $this->getManager()->commit();
 
-
-        return [$document, $document2];
+        return [
+            $document,
+            $document2,
+        ];
     }
 
     /**
@@ -65,20 +64,12 @@ class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
         $kernel = self::createClient()->getKernel();
 
         /** @var Repository $repository */
-        $repository = $this->getManager()->getRepository('AcmeTestBundle:Product');
+        $repository = $this->getManager()->getRepository('ONGRTestingBundle:Product');
 
         $expectedProducts = $this->getDocumentsData($repository);
 
-        /** @var TestDocumentProcessor $processor */
-        $processor = new TestDocumentProcessor();
-
-        /** @var TestCrawlerContext $context */
-        $context = new TestCrawlerContext($repository);
-        $context->addDocumentProcessor($processor);
-
-        /** @var Crawler $repositoryCrawler */
-        $repositoryCrawler = $kernel->getContainer()->get('ongr.repository_crawler.crawler');
-        $repositoryCrawler->addContext('test_context', $context);
+        $consumer = new TestDocumentProcessor();
+        $kernel->getContainer()->set('ongr.pipeline.repository_crawler.crawler_process_document', $consumer);
 
         $application = new Application($kernel);
         $application->add(new RepositoryCrawlerCommand());
@@ -89,16 +80,14 @@ class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
         $commandTester->execute(
             [
                 'command' => $command->getName(),
-                'context' => 'test_context',
             ]
         );
 
         sort($expectedProducts);
-        if (is_array($processor->documentCollection)) {
-            sort($processor->documentCollection);
+        if (is_array($consumer->documentCollection)) {
+            sort($consumer->documentCollection);
         }
 
-
-        $this->assertEquals($expectedProducts, $processor->documentCollection);
+        $this->assertEquals($expectedProducts, $consumer->documentCollection);
     }
 }

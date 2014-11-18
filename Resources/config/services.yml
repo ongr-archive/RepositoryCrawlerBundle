@@ -1,11 +1,40 @@
 parameters:
 
-  ongr.repository_crawler.crawler.class: ONGR\RepositoryCrawlerBundle\Crawler\Crawler
+  ongr_repository_crawler.crawler.class: ONGR\RepositoryCrawlerBundle\Crawler\Crawler
+  ongr_repository_crawler.process_document.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerModifier
+  ongr_repository_crawler.end_iteration.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerConsumer
+  ongr_repository_crawler.repository_source.repositoryname: override_me
+  ongr_connections.pipeline_factory.class: ONGR\ConnectionsBundle\Pipeline\PipelineFactory
+  ongr_connections.pipeline_factory.pipeline_class: \ONGR\ConnectionsBundle\Pipeline\Pipeline
+
 
 services:
 
   ongr.repository_crawler.crawler:
-      class: %ongr.repository_crawler.crawler.class%
+      class: %ongr_repository_crawler.crawler.class%
       calls:
-          - [setDispatcher, [@event_dispatcher]]
-      scope: container
+          - [setPipelineFactory, [ @ongr_connections.pipeline_factory ] ]
+
+  ongr_connections.pipeline_factory:
+      class: %ongr_connections.pipeline_factory.class%
+      calls:
+          - [ setDispatcher, [ @event_dispatcher ] ]
+          - [ setClassName, [ %ongr_connections.pipeline_factory.pipeline_class% ] ]
+
+  ongr.pipeline.repository_crawler.crawler_process_document:
+      class: %ongr_repository_crawler.process_document.class%
+      tags:
+          - { name: kernel.event_listener, event: ongr.pipeline.repository_crawler.default.modify, method: onModify }
+
+  ongr.pipeline.repository_crawler.crawler_end_iteration:
+      class: %ongr_repository_crawler.end_iteration.class%
+      tags:
+          - { name: kernel.event_listener, event: ongr.pipeline.repository_crawler.default.consume, method: onConsume }
+
+  ongr.pipeline.repository_crawler.repository_source:
+      class: ONGR\RepositoryCrawlerBundle\Event\CrawlerRepositorySource
+      arguments:
+          - @es.manager.default
+          - %ongr_repository_crawler.repository_source.repositoryname%
+      tags:
+          - { name: kernel.event_listener, event: ongr.pipeline.repository_crawler.default.source, method: onSource }

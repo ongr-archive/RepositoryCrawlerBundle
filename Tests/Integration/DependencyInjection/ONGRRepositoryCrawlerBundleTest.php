@@ -12,7 +12,6 @@
 namespace ONGR\RepositoryCrawlerBundle\Tests\Integration\DependencyInjection;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use ONGR\RepositoryCrawlerBundle\DependencyInjection\Configuration;
 
 class ONGRRepositoryCrawlerBundleTest extends WebTestCase
 {

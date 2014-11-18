@@ -19,7 +19,7 @@ class AppKernel extends Kernel
      */
     public function registerBundles()
     {
-        return array(
+        return [
             new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
             new Symfony\Bundle\TwigBundle\TwigBundle(),
             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
@@ -28,8 +28,8 @@ class AppKernel extends Kernel
             new Fox\UtilsBundle\FoxUtilsBundle(),
             new ONGR\ConnectionsBundle\ONGRConnectionsBundle(),
             new ONGR\RepositoryCrawlerBundle\ONGRRepositoryCrawlerBundle(),
-            new ONGR\ElasticsearchBundle\Tests\app\fixture\Acme\TestBundle\AcmeTestBundle(),
-        );
+            new ONGR\TestingBundle\ONGRTestingBundle(),
+        ];
     }
 
     /**

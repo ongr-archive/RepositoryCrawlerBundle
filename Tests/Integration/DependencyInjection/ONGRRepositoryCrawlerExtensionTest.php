@@ -21,13 +21,25 @@ class ONGRRepositoryCrawlerExtensionTest extends WebTestCase
      */
     public function getParametersData()
     {
-        $out = [];
-
-        $out[] = [
-            'ongr.repository_crawler.crawler.class',
-            'string',
-            true,
-            'ONGR\RepositoryCrawlerBundle\Crawler\Crawler',
+        $out = [
+            [
+                'ongr_repository_crawler.crawler.class',
+                'string',
+                true,
+                '',
+            ],
+            [
+                'ongr_connections.pipeline_factory.class',
+                'string',
+                true,
+                '',
+            ],
+            [
+                'ongr_connections.pipeline_factory.pipeline_class',
+                'string',
+                true,
+                '',
+            ],
         ];
 
         return $out;
