@@ -35,6 +35,7 @@ class CrawlerRepositorySource extends AbstractCrawlerSource
     protected function getSearch()
     {
         $search = new Search();
+
         return $search;
     }
 

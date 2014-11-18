@@ -12,7 +12,11 @@ namespace ONGR\RepositoryCrawlerBundle\Event;
 
 use ONGR\ConnectionsBundle\Pipeline\Event\ItemPipelineEvent;
 
-class CrawlerConsumer {
+/**
+ * Advances progress when applicable.
+ */
+class CrawlerConsumer
+{
     /**
      * Calls context->advanceProgress.
      *

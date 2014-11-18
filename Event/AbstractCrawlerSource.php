@@ -21,8 +21,8 @@ abstract class AbstractCrawlerSource
     /**
      * Registers source.
      *
-     * @param SourcePipelineEvent $event
-     * @param array|DocumentIterator  $results
+     * @param SourcePipelineEvent    $event
+     * @param array|DocumentIterator $results
      *
      * @throws \InvalidArgumentException
      */
@@ -35,9 +35,9 @@ abstract class AbstractCrawlerSource
 
         if (is_array($results)) {
             // CrawlerRepositorySource always returns DocumentIterator, thus this is not tested here.
-            // @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart .
             $pipelineContext->addResults(count($results));
-            // @codeCoverageIgnoreEnd
+            // @codeCoverageIgnoreEnd .
         } elseif (($results instanceof DocumentIterator)) {
             $pipelineContext->addResults($results->count());
         }

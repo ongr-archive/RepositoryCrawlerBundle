@@ -110,7 +110,7 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
                 ($this->returnValue(null)),
                 ($this->returnValue(null)),
                 ($this->returnValue($modifier->onModify($itemEvent))),
-                ($this->returnValue($consumer->onConsume($itemEvent)===null))
+                ($this->returnValue($consumer->onConsume($itemEvent) === null))
             );
 
         $pipelineFactory = new PipelineFactory();
