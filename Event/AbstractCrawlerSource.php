@@ -31,17 +31,15 @@ abstract class AbstractCrawlerSource
         /** @var CrawlerPipelineContext $pipelineContext */
         $pipelineContext = $event->getContext();
 
+        if (!($pipelineContext instanceof CrawlerPipelineContext)) {
+            throw new \InvalidArgumentException(
+                'Crawler source only accepts events with CrawlerPipelineContext context.'
+            );
+        }
+
         $event->addSource($results);
 
-        if (is_array($results)) {
-            // CrawlerRepositorySource always returns DocumentIterator, thus this is not tested here.
-
-            // @codeCoverageIgnoreStart
-            $pipelineContext->addResults(count($results));
-            // @codeCoverageIgnoreEnd
-        } elseif (($results instanceof DocumentIterator)) {
-            $pipelineContext->addResults($results->count());
-        }
+        $pipelineContext->addResults(count($results));
     }
 
     /**

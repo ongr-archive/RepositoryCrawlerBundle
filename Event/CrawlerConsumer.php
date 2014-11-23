@@ -18,14 +18,22 @@ use ONGR\ConnectionsBundle\Pipeline\Event\ItemPipelineEvent;
 class CrawlerConsumer
 {
     /**
-     * Calls context->advanceProgress.
+     * Advances the progress (if applicable) in pipeline context. Context must be of type CrawlerPipelineContext).
      *
      * @param ItemPipelineEvent $documentEvent
+     *
+     * @throws \InvalidArgumentException
      */
     public function onConsume(ItemPipelineEvent $documentEvent)
     {
         /** @var CrawlerPipelineContext $eventContext */
         $eventContext = $documentEvent->getContext();
+
+        if (!($eventContext instanceof CrawlerPipelineContext)) {
+            throw new \InvalidArgumentException(
+                'Crawler consumer only accepts events with CrawlerPipelineContext context.'
+            );
+        }
 
         $eventContext->advanceProgress();
     }
