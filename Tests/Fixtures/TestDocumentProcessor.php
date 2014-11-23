@@ -31,9 +31,9 @@ class TestDocumentProcessor extends AbstractCrawlerModifier
     /**
      * Processes single document.
      *
-     * @param DocumentInterface $document
+     * @param mixed $document
      */
-    public function processData(DocumentInterface $document)
+    public function processData($document)
     {
         $this->documentCollection[] = $document;
     }

@@ -29,11 +29,7 @@ class CrawlerConsumer
         /** @var CrawlerPipelineContext $eventContext */
         $eventContext = $documentEvent->getContext();
 
-        if (!($eventContext instanceof CrawlerPipelineContext)) {
-            throw new \LogicException(
-                'Crawler consumer only accepts events with CrawlerPipelineContext context.'
-            );
-        }
+        CrawlerInstanceChecks::checkPipelineContext($eventContext);
 
         $eventContext->advanceProgress();
     }

@@ -66,32 +66,6 @@ class CrawlerTest extends ElasticsearchTestCase
 
         $itemEvent->setContext($context);
 
-        $dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
-        $dispatcher
-            ->expects($this->any())
-            ->method('dispatch')
-            ->withConsecutive(
-                ['ongr.pipeline.repository_crawler.default.source', $this->anything()],
-                ['ongr.pipeline.repository_crawler.default.start', $this->anything()],
-                ['ongr.pipeline.repository_crawler.default.finish', $this->anything()],
-                ['ongr.pipeline.repository_crawler.default.modify', $this->anything()],
-                ['ongr.pipeline.repository_crawler.default.consume', $this->anything()]
-            )
-            ->willReturnOnConsecutiveCalls(
-                ($this->returnValue(null)),
-                ($this->returnValue(null)),
-                ($this->returnValue(null)),
-                ($this->returnValue(null)),
-                ($this->returnValue($consumer->onConsume($itemEvent) === null))
-            );
-
-        $pipelineFactory = new PipelineFactory();
-
-        $pipelineFactory->setClassName('\ONGR\ConnectionsBundle\Pipeline\Pipeline');
-        $pipelineFactory->setDispatcher($dispatcher);
-
-        $crawler = new Crawler();
-        $crawler->setPipelineFactory($pipelineFactory);
-        $crawler->run();
+        $consumer->onConsume($itemEvent);
     }
 }

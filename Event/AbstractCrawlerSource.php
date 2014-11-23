@@ -29,17 +29,13 @@ abstract class AbstractCrawlerSource
     public function registerSource(SourcePipelineEvent $event, $results)
     {
         /** @var CrawlerPipelineContext $pipelineContext */
-        $pipelineContext = $event->getContext();
+        $eventContext = $event->getContext();
 
-        if (!($pipelineContext instanceof CrawlerPipelineContext)) {
-            throw new \LogicException(
-                'Crawler source only accepts events with CrawlerPipelineContext context.'
-            );
-        }
+        CrawlerInstanceChecks::checkPipelineContext($eventContext);
 
         $event->addSource($results);
 
-        $pipelineContext->addResults(count($results));
+        $eventContext->addResults(count($results));
     }
 
     /**
