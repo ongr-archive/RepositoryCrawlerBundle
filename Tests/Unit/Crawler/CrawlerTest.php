@@ -94,6 +94,4 @@ class CrawlerTest extends ElasticsearchTestCase
         $crawler->setPipelineFactory($pipelineFactory);
         $crawler->run();
     }
-
-
 }
