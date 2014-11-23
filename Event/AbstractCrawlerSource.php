@@ -24,7 +24,7 @@ abstract class AbstractCrawlerSource
      * @param SourcePipelineEvent    $event
      * @param array|DocumentIterator $results
      *
-     * @throws \InvalidArgumentException
+     * @throws \LogicException
      */
     public function registerSource(SourcePipelineEvent $event, $results)
     {
@@ -32,7 +32,7 @@ abstract class AbstractCrawlerSource
         $pipelineContext = $event->getContext();
 
         if (!($pipelineContext instanceof CrawlerPipelineContext)) {
-            throw new \InvalidArgumentException(
+            throw new \LogicException(
                 'Crawler source only accepts events with CrawlerPipelineContext context.'
             );
         }

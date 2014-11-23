@@ -102,8 +102,8 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
                 ['ongr.pipeline.repository_crawler.default.source', $this->anything()],
                 ['ongr.pipeline.repository_crawler.default.start', $this->anything()],
                 ['ongr.pipeline.repository_crawler.default.finish', $this->anything()],
-                ['ongr.pipeline.repository_crawler.default.consume', $this->anything()],
-                ['ongr.pipeline.repository_crawler.default.modify', $this->anything()]
+                ['ongr.pipeline.repository_crawler.default.modify', $this->anything()],
+                ['ongr.pipeline.repository_crawler.default.consume', $this->anything()]
             )
             ->willReturnOnConsecutiveCalls(
                 ($this->returnValue($source->onSource(new SourcePipelineEvent()))),

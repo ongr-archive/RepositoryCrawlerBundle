@@ -22,7 +22,7 @@ class CrawlerConsumer
      *
      * @param ItemPipelineEvent $documentEvent
      *
-     * @throws \InvalidArgumentException
+     * @throws \LogicException
      */
     public function onConsume(ItemPipelineEvent $documentEvent)
     {
@@ -30,7 +30,7 @@ class CrawlerConsumer
         $eventContext = $documentEvent->getContext();
 
         if (!($eventContext instanceof CrawlerPipelineContext)) {
-            throw new \InvalidArgumentException(
+            throw new \LogicException(
                 'Crawler consumer only accepts events with CrawlerPipelineContext context.'
             );
         }
