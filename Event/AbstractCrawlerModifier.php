@@ -21,9 +21,9 @@ abstract class AbstractCrawlerModifier
     /**
      * Processes document.
      *
-     * @param DocumentInterface $document
+     * @param mixed $document
      */
-    abstract protected function processData(DocumentInterface $document);
+    abstract protected function processData($document);
 
     /**
      * Calls context->process.
