@@ -18,7 +18,7 @@ use ONGR\ConnectionsBundle\Pipeline\Event\ItemPipelineEvent;
 class CrawlerConsumer
 {
     /**
-     * Advances the progress (if applicable) in pipeline context. Context must be of type CrawlerPipelineContext).
+     * Advances the progress (if applicable) in pipeline context. Context must be of type CrawlerPipelineContext.
      *
      * @param ItemPipelineEvent $documentEvent
      *
