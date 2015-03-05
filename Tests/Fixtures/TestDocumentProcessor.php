@@ -22,9 +22,7 @@ use ONGR\RepositoryCrawlerBundle\Event\AbstractCrawlerModifier;
 class TestDocumentProcessor extends AbstractCrawlerModifier
 {
     /**
-     * Stores returned documents.
-     *
-     * @var array documentCollection
+     * @var array|documentCollection Stores returned documents.
      */
     public $documentCollection;
 

@@ -24,7 +24,7 @@
         "symfony/symfony": "~2.3",
         "symfony/monolog-bundle": "~2.0",
         "nfq-extremes/fox-utils": "~1.0",
-        "ongr/connections-bundle": "dev-master"
+        "ongr/connections-bundle": "~0.6"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.2",

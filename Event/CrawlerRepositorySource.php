@@ -10,6 +10,7 @@
 
 namespace ONGR\RepositoryCrawlerBundle\Event;
 
+use ONGR\ElasticsearchBundle\DSL\Query\MatchAllQuery;
 use ONGR\ElasticsearchBundle\ORM\Repository;
 use ONGR\ElasticsearchBundle\ORM\Manager;
 use ONGR\ElasticsearchBundle\DSL\Search;
@@ -21,9 +22,7 @@ use ONGR\ConnectionsBundle\Pipeline\Event\SourcePipelineEvent;
 class CrawlerRepositorySource extends AbstractCrawlerSource
 {
     /**
-     * Elasticsearch repository.
-     *
-     * @var Repository $repository
+     * @var Repository Elasticsearch repository.
      */
     protected $repository;
 
@@ -57,7 +56,19 @@ class CrawlerRepositorySource extends AbstractCrawlerSource
      */
     public function onSource(SourcePipelineEvent $sourceEvent)
     {
-        $results = $this->repository->execute($this->getSearch(), Repository::RESULTS_OBJECT);
-        $this->registerSource($sourceEvent, $results);
+        $sourceEvent->addSource($this->getAllDocuments());
+    }
+
+    /**
+     * Gets all documents by given type.
+     *
+     * @return DocumentIterator
+     */
+    public function getAllDocuments()
+    {
+        $matchAllQuery = new MatchAllQuery();
+        $search = $this->repository->createSearch()->addQuery($matchAllQuery);
+
+        return $this->repository->execute($search);
     }
 }
