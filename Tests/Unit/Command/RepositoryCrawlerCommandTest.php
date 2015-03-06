@@ -16,46 +16,11 @@ use ONGR\ConnectionsBundle\Pipeline\Event\SourcePipelineEvent;
 use ONGR\ConnectionsBundle\Pipeline\PipelineFactory;
 use ONGR\RepositoryCrawlerBundle\Command\RepositoryCrawlerCommand;
 use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
-use ONGR\RepositoryCrawlerBundle\Event\CrawlerConsumer;
 use ONGR\RepositoryCrawlerBundle\Event\CrawlerPipelineContext;
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * Test ongr:repository-crawler:crawl behaviour.
-     */
-    public function testCommand()
-    {
-        /** @var Crawler|\PHPUnit_Framework_MockObject_MockObject $crawler */
-        $crawler = $this->getMockBuilder('ONGR\RepositoryCrawlerBundle\Crawler\Crawler')
-            ->disableOriginalConstructor()
-            ->setMethods(['run'])
-            ->getMock();
-
-        $crawler->expects($this->once())->method('run')->will($this->returnValue(null));
-
-        $container = new ContainerBuilder();
-        $container->set('ongr.repository_crawler.crawler', $crawler);
-
-        $command = new RepositoryCrawlerCommand();
-        $command->setContainer($container);
-
-        $application = new Application();
-        $application->add($command);
-
-        $commandForTesting = $application->find('ongr:repository-crawler:crawl');
-        $commandTester = new CommandTester($commandForTesting);
-
-        $commandTester->execute(
-            [
-                'command' => $commandForTesting->getName(),
-            ]
-        );
-    }
-
     /**
      * Test ongr:repository-crawler:crawl progress helper behavior.
      */
@@ -69,13 +34,11 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
 
         $container = new ContainerBuilder();
 
-        $consumer = new CrawlerConsumer();
-
         $command = new RepositoryCrawlerCommand();
         $command->setContainer($container);
 
         $input = $this->getMock('Symfony\Component\Console\Input\InputInterface');
-        $input->expects($this->once())->method('getOption')->with('event-name')->will(
+        $input->expects($this->any())->method('getOption')->with('event-name')->will(
             $this->returnValue('default')
         );
 
@@ -91,26 +54,22 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
         $output->expects($this->any())->method('getFormatter')->will($this->returnValue($outputFormatter));
 
         $itemEvent = new ItemPipelineEvent($document1);
-        $context = new CrawlerPipelineContext($output);
-        $itemEvent->setContext($context);
 
         $dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
         $dispatcher
             ->expects($this->exactly(3))
             ->method('dispatch')
             ->withConsecutive(
-                ['ongr.pipeline.repository_crawler.default.source', $this->anything()],
-                ['ongr.pipeline.repository_crawler.default.start', $this->anything()],
-                ['ongr.pipeline.repository_crawler.default.finish', $this->anything()],
-                ['ongr.pipeline.repository_crawler.default.modify', $this->anything()],
-                ['ongr.pipeline.repository_crawler.default.consume', $this->anything()]
+                ['ongr.pipeline.crawl.source', $this->anything()],
+                ['ongr.pipeline.crawl.start', $this->anything()],
+                ['ongr.pipeline.crawl.finish', $this->anything()],
+                ['ongr.pipeline.crawl.modify', $this->anything()]
             )
             ->willReturnOnConsecutiveCalls(
                 ($this->returnValue($source->onSource(new SourcePipelineEvent()))),
                 ($this->returnValue(null)),
                 ($this->returnValue(null)),
-                ($this->returnValue($modifier->onModify($itemEvent))),
-                ($this->returnValue($consumer->onConsume($itemEvent) === null))
+                ($this->returnValue($modifier->onModify($itemEvent)))
             );
 
         $pipelineFactory = new PipelineFactory();

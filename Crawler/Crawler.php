@@ -11,7 +11,6 @@
 
 namespace ONGR\RepositoryCrawlerBundle\Crawler;
 
-use ONGR\RepositoryCrawlerBundle\Event\CrawlerPipelineContext;
 use ONGR\ConnectionsBundle\Pipeline\PipelineFactory;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -21,16 +20,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Crawler
 {
     /**
-     * Pipeline factory.
-     *
-     * @var PipelineFactory
+     * @var PipelineFactory Pipeline factory.
      */
     protected $pipelineFactory = null;
-
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
 
     /**
      * @var string
@@ -38,11 +30,9 @@ class Crawler
     protected $target = 'default';
 
     /**
-     * Holds all the applicable consumer events.
-     *
-     * @var array
+     * @var OutputInterface Console output.
      */
-    protected $consumeEventListeners;
+    protected $output;
 
     /**
      * Pipeline factory setter.
@@ -55,13 +45,27 @@ class Crawler
     }
 
     /**
-     * Sets console output.
-     *
-     * @param OutputInterface $output
+     * @return PipelineFactory
+     */
+    public function getPipelineFactory()
+    {
+        return $this->pipelineFactory;
+    }
+
+    /**
+     * @param OutputInterface $output Sets console output.
      */
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+    }
+
+    /**
+     * @return OutputInterface Gets console output.
+     */
+    public function getOutput()
+    {
+        return $this->output;
     }
 
     /**
@@ -76,12 +80,13 @@ class Crawler
 
     /**
      * Gets documents and passes it to crawler context service.
+     *
+     * @param string $prefix
+     * @param string $target
      */
-    public function run()
+    public function startPipeline($prefix, $target)
     {
-        $pipeline = $this->pipelineFactory->create('repository_crawler.' . $this->target);
-        $pipelineContext = new CrawlerPipelineContext();
-        $pipeline->setContext($pipelineContext);
-        $pipeline->execute();
+        $pipeline = $this->pipelineFactory->create($prefix . $target);
+        $pipeline->start();
     }
 }

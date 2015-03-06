@@ -19,26 +19,6 @@ use ONGR\ElasticsearchBundle\Result\DocumentIterator;
 abstract class AbstractCrawlerSource
 {
     /**
-     * Registers source.
-     *
-     * @param SourcePipelineEvent    $event
-     * @param array|DocumentIterator $results
-     *
-     * @throws \LogicException
-     */
-    public function registerSource(SourcePipelineEvent $event, $results)
-    {
-        /** @var CrawlerPipelineContext $pipelineContext */
-        $eventContext = $event->getContext();
-
-        CrawlerInstanceChecks::checkPipelineContext($eventContext);
-
-        $event->addSource($results);
-
-        $eventContext->addResults(count($results));
-    }
-
-    /**
      * Source provider event.
      *
      * @param SourcePipelineEvent $sourceEvent

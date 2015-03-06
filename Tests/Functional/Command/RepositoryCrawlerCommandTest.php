@@ -24,7 +24,6 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
 {
-
     /**
      * Creates and returns ProductModel array filled with test data.
      *
@@ -38,22 +37,22 @@ class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
 
         $document->setId('test-product-1');
         $document->title = 'Test title';
-        $document->setScore('1.0');
+        $document->setScore(1.0);
 
         $this->getManager()->persist($document);
 
         $document2 = $repository->createDocument();
         $document2->setId('test-product-2');
         $document2->title = 'Test title2';
-        $document2->setScore('1.0');
+        $document2->setScore(1.0);
 
         $this->getManager()->persist($document2);
         $this->getManager()->commit();
 
-        return [
-            $document,
-            $document2,
-        ];
+        $return[$document->getId()] = $document;
+        $return[$document2->getId()] = $document2;
+
+        return $return;
     }
 
     /**
@@ -83,11 +82,10 @@ class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
             ]
         );
 
-        sort($expectedProducts);
-        if (is_array($consumer->documentCollection)) {
-            sort($consumer->documentCollection);
+        foreach ($consumer->documentCollection as $item) {
+            $this->assertEquals($expectedProducts[$item->getId()]->getTitle(), $item->getTitle());
+            $this->assertEquals($expectedProducts[$item->getId()]->getScore(), $item->getScore());
+            $this->assertEquals($expectedProducts[$item->getId()]->getId(), $item->getId());
         }
-
-        $this->assertEquals($expectedProducts, $consumer->documentCollection);
     }
 }

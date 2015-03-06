@@ -11,34 +11,21 @@
 
 namespace ONGR\RepositoryCrawlerBundle\Command;
 
-use ONGR\RepositoryCrawlerBundle\Crawler\Crawler;
-use ONGR\ElasticsearchBundle\Command\AbstractElasticsearchCommand;
+use ONGR\ConnectionsBundle\Command\AbstractStartServiceCommand;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Repository crawler.
  */
-class RepositoryCrawlerCommand extends AbstractElasticsearchCommand
+class RepositoryCrawlerCommand extends AbstractStartServiceCommand
 {
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    public function __construct()
     {
-        parent::configure();
-
-        $this
-            ->setName('ongr:repository-crawler:crawl')
-            ->setDescription('Repository crawler')
-            ->addOption(
-                'event-name',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Set specific pipeline event name (see documentation for details)',
-                null
-            );
+        parent::__construct('ongr:repository-crawler:crawl', 'Repository crawler.');
     }
 
     /**
@@ -46,20 +33,6 @@ class RepositoryCrawlerCommand extends AbstractElasticsearchCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $start = microtime(true);
-
-        /** @var Crawler $repositoryCrawler */
-        $repositoryCrawler = $this->getContainer()->get('ongr.repository_crawler.crawler');
-        $repositoryCrawler->setOutput($output);
-        $eventName = $input->getOption('event-name');
-
-        if ($eventName != null) {
-            $repositoryCrawler->setTarget($eventName);
-        }
-
-        $repositoryCrawler->run($this->getContainer());
-        $output->writeln('');
-        $output->writeln(sprintf('<info>Job finished in %.2f s</info>', microtime(true) - $start));
-        $output->writeln(sprintf('<info>Memory usage: %.2f MB</info>', memory_get_peak_usage() >> 20));
+        $this->start($input, $output, 'ongr.repository_crawler.crawler', 'crawl');
     }
 }
