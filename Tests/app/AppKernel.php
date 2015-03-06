@@ -25,7 +25,6 @@ class AppKernel extends Kernel
             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new Symfony\Bundle\MonologBundle\MonologBundle(),
             new ONGR\ElasticsearchBundle\ONGRElasticsearchBundle(),
-            new Fox\UtilsBundle\FoxUtilsBundle(),
             new ONGR\ConnectionsBundle\ONGRConnectionsBundle(),
             new ONGR\RepositoryCrawlerBundle\ONGRRepositoryCrawlerBundle(),
             new ONGR\TestingBundle\ONGRTestingBundle(),
