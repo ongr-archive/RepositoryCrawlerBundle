@@ -11,10 +11,6 @@
     ],
     "repositories": [
         {
-            "type": "composer",
-            "url": "http://packagist.fox.nfq.lt"
-        },
-        {
             "type": "vcs",
             "url": "git@github.com:ongr-io/ConnectionsBundle.git"
         }
@@ -23,7 +19,6 @@
         "php": ">=5.4",
         "symfony/symfony": "~2.3",
         "symfony/monolog-bundle": "~2.0",
-        "nfq-extremes/fox-utils": "~1.0",
         "ongr/connections-bundle": "~0.6"
     },
     "require-dev": {
@@ -31,9 +26,6 @@
         "squizlabs/php_codesniffer": "~1.5",
         "ongr/testing-bundle": "~1.0",
         "ongr/ongr-strict-standard": "~1.0.0-beta"
-    },
-    "suggest": {
-        "ongr/oxid-bundle": "Allows to transfer shop data from OXID to FOXX"
     },
     "autoload": {
         "psr-4": {
