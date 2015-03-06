@@ -12,6 +12,7 @@
 namespace ONGR\RepositoryCrawlerBundle\Crawler;
 
 use ONGR\ConnectionsBundle\Pipeline\PipelineFactory;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -75,18 +76,18 @@ class Crawler
      */
     public function setTarget($target)
     {
-        $this->$target = $target;
+        $this->target = $target;
     }
 
     /**
      * Gets documents and passes it to crawler context service.
      *
      * @param string $prefix
-     * @param string $target
      */
-    public function startPipeline($prefix, $target)
+    public function startCrawler($prefix)
     {
-        $pipeline = $this->pipelineFactory->create($prefix . $target);
+        $pipeline = $this->pipelineFactory->create($prefix . $this->target);
+        $pipeline->setProgressBar(new ProgressBar($this->getOutput()));
         $pipeline->start();
     }
 }

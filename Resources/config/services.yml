@@ -1,38 +1,29 @@
 parameters:
+    ongr_connections.pipeline_factory.class: ONGR\ConnectionsBundle\Pipeline\PipelineFactory
+    ongr_connections.pipeline_factory.pipeline_class: ONGR\ConnectionsBundle\Pipeline\Pipeline
 
     ongr_repository_crawler.crawler.class: ONGR\RepositoryCrawlerBundle\Crawler\Crawler
     ongr_repository_crawler.crawler.source.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerRepositorySource
-    ongr_repository_crawler.crawler.modifier.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerModifier
-
-    ongr_connections.import.source.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerRepositorySource
-    ongr_connections.import.modifier.class: ONGR\RepositoryCrawlerBundle\Event\CrawlerModifier
 
 services:
-
-    # Crawler service
-    ongr.repository_crawler.crawler:
+    # Crawler service.
+    ongr_repository_crawler.crawler:
         class: %ongr_repository_crawler.crawler.class%
         calls:
             - [setPipelineFactory, [ @ongr_connections.pipeline_factory ] ]
 
-    # Factory
+    # Factory.
     ongr_connections.pipeline_factory:
           class: %ongr_connections.pipeline_factory.class%
           calls:
               - [ setDispatcher, [ @event_dispatcher ] ]
               - [ setClassName, [ %ongr_connections.pipeline_factory.pipeline_class% ] ]
 
-    # Source event
+    # Source event default.
     ongr.pipeline.repository_crawler.repository_source:
        class: %ongr_repository_crawler.crawler.source.class%
        arguments:
            - @es.manager
            - ONGRTestingBundle:Product
        tags:
-           - { name: kernel.event_listener, event: ongr.pipeline.crawl.source, method: onSource }
-
-    # Modify event
-    ongr.pipeline.repository_crawler.crawler_process_document:
-        class: %ongr_repository_crawler.crawler.modifier.class%
-        tags:
-            - { name: kernel.event_listener, event: ongr.pipeline.crawl.modify, method: onModify }
+           - { name: kernel.event_listener, event: ongr.pipeline.repository_crawler.default.source, method: onSource }

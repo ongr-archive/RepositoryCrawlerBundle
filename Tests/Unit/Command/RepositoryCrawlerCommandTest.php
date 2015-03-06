@@ -60,10 +60,10 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
             ->expects($this->exactly(3))
             ->method('dispatch')
             ->withConsecutive(
-                ['ongr.pipeline.crawl.source', $this->anything()],
-                ['ongr.pipeline.crawl.start', $this->anything()],
-                ['ongr.pipeline.crawl.finish', $this->anything()],
-                ['ongr.pipeline.crawl.modify', $this->anything()]
+                ['ongr.pipeline.repository_crawler.default.source', $this->anything()],
+                ['ongr.pipeline.repository_crawler.default.start', $this->anything()],
+                ['ongr.pipeline.repository_crawler.default.finish', $this->anything()],
+                ['ongr.pipeline.repository_crawler.default.modify', $this->anything()]
             )
             ->willReturnOnConsecutiveCalls(
                 ($this->returnValue($source->onSource(new SourcePipelineEvent()))),
@@ -81,7 +81,7 @@ class RepositoryCrawlerCommandTest extends \PHPUnit_Framework_TestCase
         $crawler->setPipelineFactory($pipelineFactory);
         $crawler->setOutput($output);
 
-        $container->set('ongr.repository_crawler.crawler', $crawler);
+        $container->set('ongr_repository_crawler.crawler', $crawler);
 
         $command->run($input, $output);
 
