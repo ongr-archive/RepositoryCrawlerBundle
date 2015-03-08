@@ -11,7 +11,6 @@
 namespace ONGR\RepositoryCrawlerBundle\Event;
 
 use ONGR\ConnectionsBundle\Pipeline\Event\ItemPipelineEvent;
-use ONGR\ElasticsearchBundle\Document\DocumentInterface;
 
 /**
  * Abstract class for event listener.
@@ -26,7 +25,7 @@ abstract class AbstractCrawlerModifier
     abstract protected function processData($document);
 
     /**
-     * Calls context->process.
+     * Events onModify action.
      *
      * @param ItemPipelineEvent $documentEvent
      */

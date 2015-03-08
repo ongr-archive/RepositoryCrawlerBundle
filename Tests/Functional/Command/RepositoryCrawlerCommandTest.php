@@ -11,10 +11,10 @@
 
 namespace ONGR\RepositoryCrawlerBundle\Tests\Functional\Command;
 
-use ONGR\RepositoryCrawlerBundle\Command\RepositoryCrawlerCommand;
+use ONGR\ConnectionsBundle\Tests\Model\ProductModel;
 use ONGR\ElasticsearchBundle\ORM\Repository;
 use ONGR\ElasticsearchBundle\Test\ElasticsearchTestCase;
-use ONGR\ConnectionsBundle\Tests\Model\ProductModel;
+use ONGR\RepositoryCrawlerBundle\Command\RepositoryCrawlerCommand;
 use ONGR\RepositoryCrawlerBundle\Tests\Fixtures\TestDocumentProcessor;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -37,14 +37,14 @@ class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
 
         $document->setId('test-product-1');
         $document->title = 'Test title';
-        $document->setScore(1.0);
+        $document->setScore(0.0);
 
         $this->getManager()->persist($document);
 
         $document2 = $repository->createDocument();
         $document2->setId('test-product-2');
         $document2->title = 'Test title2';
-        $document2->setScore(1.0);
+        $document2->setScore(0.0);
 
         $this->getManager()->persist($document2);
         $this->getManager()->commit();

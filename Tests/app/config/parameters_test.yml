@@ -16,3 +16,6 @@ parameters:
     ongr_repository_crawler.repository_source.repositoryname: ONGRTestingBundle:Product
     ongr_connections.pipeline_factory.class: ONGR\ConnectionsBundle\Pipeline\PipelineFactory
     ongr_connections.pipeline_factory.pipeline_class: \ONGR\ConnectionsBundle\Pipeline\Pipeline
+
+    ongr_connections.import.modifier.class: ONGR\ConnectionsBundle\Tests\Functional\Fixtures\ImportCommandTest\TestModifyEventListener
+    ongr_connections.sync.execute.modifier.class: ONGR\ConnectionsBundle\Tests\Functional\Fixtures\SyncCommandsTest\TestModifyEventListener
