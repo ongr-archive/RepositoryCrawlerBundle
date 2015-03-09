@@ -1,0 +1,10 @@
+parameters:
+    ongr_repository_crawler.crawler.modifier.class: ONGR\RepositoryCrawlerBundle\Tests\Fixtures\Event\CrawlerModifier
+
+services:
+    ongr.pipeline.repository_crawler.crawler_process_document:
+        class: %ongr_repository_crawler.crawler.modifier.class%
+        arguments:
+            - @service_container
+        tags:
+            - { name: kernel.event_listener, event: ongr.pipeline.repository_crawler.default.modify, method: onModify }
