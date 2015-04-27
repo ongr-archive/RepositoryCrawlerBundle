@@ -65,7 +65,7 @@ ongr_elasticsearch:
         default:
             connection: default
             mappings:
-                - ONGRTestingBundle
+                - AcmeTestBundle
         bar:
             connection: bar
             mappings:

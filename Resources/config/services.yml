@@ -24,6 +24,6 @@ services:
        class: %ongr_repository_crawler.crawler.source.class%
        arguments:
            - @es.manager
-           - ONGRTestingBundle:Product
+           - AcmeTestBundle:Product
        tags:
            - { name: kernel.event_listener, event: ongr.pipeline.repository_crawler.default.source, method: onSource }

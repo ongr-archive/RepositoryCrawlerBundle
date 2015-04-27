@@ -25,7 +25,7 @@ pipeline event name pattern.
        class: %ongr_repository_crawler.crawler.source.class%
        arguments:
            - @es.manager
-           - ONGRTestingBundle:Product
+           - AcmeTestBundle:Product
        tags:
            - { name: kernel.event_listener, event: ongr.pipeline.repository_crawler.myEventName.source, method: onSource }
 
@@ -39,7 +39,7 @@ pipeline event name pattern.
 
 ..
 
-`ongr.pipeline.repository_crawler.repository_source` service will define data source - `@es.manager`, `ONGRTestingBundle:Product`
+`ongr.pipeline.repository_crawler.repository_source` service will define data source - `@es.manager`, `AcmeTestBundle:Product`
 
 `ongr.pipeline.repository_crawler.crawler_process_document` service will define event (action) on each iteration.
 
