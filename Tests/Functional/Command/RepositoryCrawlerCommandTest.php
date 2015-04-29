@@ -11,9 +11,8 @@
 
 namespace ONGR\RepositoryCrawlerBundle\Tests\Functional\Command;
 
-use ONGR\ConnectionsBundle\Tests\Model\ProductModel;
 use ONGR\ElasticsearchBundle\ORM\Repository;
-use ONGR\ElasticsearchBundle\Test\ElasticsearchTestCase;
+use ONGR\ElasticsearchBundle\Test\AbstractElasticsearchTestCase;
 use ONGR\RepositoryCrawlerBundle\Command\RepositoryCrawlerCommand;
 use ONGR\RepositoryCrawlerBundle\Tests\Fixtures\TestDocumentProcessor;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -22,14 +21,14 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * Integration test for ongr:repository-crawler:crawl command.
  */
-class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
+class RepositoryCrawlerCommandTest extends AbstractElasticsearchTestCase
 {
     /**
      * Creates and returns ProductModel array filled with test data.
      *
      * @param Repository $repository
      *
-     * @return array|ProductModel
+     * @return array
      */
     protected function getDocumentsData($repository)
     {
@@ -63,7 +62,7 @@ class RepositoryCrawlerCommandTest extends ElasticsearchTestCase
         $kernel = self::createClient()->getKernel();
 
         /** @var Repository $repository */
-        $repository = $this->getManager()->getRepository('ONGRTestingBundle:Product');
+        $repository = $this->getManager()->getRepository('AcmeTestBundle:Product');
 
         $expectedProducts = $this->getDocumentsData($repository);
 
